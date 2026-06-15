@@ -1,1 +1,1581 @@
-# jarvis
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DISCIPLINE — Daily Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --ink: #0c0c10;
+  --panel: #15151c;
+  --panel-2: #1c1c25;
+  --line: #2a2a36;
+  --paper: #ece7dd;
+  --paper-dim: #8c8a96;
+  --signal: #ff5d3a;
+  --signal-dim: rgba(255,93,58,.14);
+  --signal-soft: rgba(255,93,58,.35);
+  --glow: rgba(255,93,58,.22);
+  --glow-strong: rgba(255,93,58,.42);
+  --cool-glow: rgba(112,174,224,.16);
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*{ box-sizing: border-box; margin:0; padding:0; }
+html, body{ height: 100%; }
+body{
+  background:
+    linear-gradient(135deg, rgba(255,93,58,.08), transparent 28%),
+    linear-gradient(215deg, rgba(112,174,224,.07), transparent 34%),
+    var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.app{ display: flex; min-height: 100vh; }
+
+.sidebar{
+  width: 264px; flex-shrink: 0; background: rgba(21,21,28,.92); border-right: 1px solid rgba(255,93,58,.16);
+  display: flex; flex-direction: column; justify-content: space-between; padding: 28px 22px;
+  position: sticky; top: 0; height: 100vh;
+  box-shadow: 18px 0 48px rgba(0,0,0,.28), inset -1px 0 0 rgba(255,255,255,.03);
+  z-index: 20;
+}
+body.weather-open .sidebar{ z-index: 5000; }
+.sidebar-top{ display: flex; flex-direction: column; gap: 28px; }
+.brand{ display: flex; align-items: center; gap: 12px; }
+.brand-mark{
+  width: 38px; height: 38px; flex-shrink: 0; border-radius: 8px; background: var(--signal);
+  color: var(--ink); font-family: var(--font-display); font-weight: 600; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 24px var(--glow-strong);
+}
+.brand-text{ display: flex; flex-direction: column; line-height: 1.25; }
+.brand-name{ font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.18em; }
+.brand-sub{ font-size: 11px; color: var(--paper-dim); letter-spacing: 0.02em; }
+
+.date-readout{ border: 1px solid rgba(255,93,58,.18); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; background: rgba(28,28,37,.86); box-shadow: 0 0 22px rgba(255,93,58,.08); }
+.date-label{ font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; color: var(--paper-dim); }
+.date-value{ font-family: var(--font-display); font-size: 19px; font-weight: 500; }
+
+.nav{ display: flex; flex-direction: column; gap: 4px; margin-top: 36px; }
+.nav-item{
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; background: transparent;
+  border: 1px solid transparent; border-radius: 10px; padding: 13px 14px; cursor: pointer; color: var(--paper-dim);
+  font-family: var(--font-body); font-size: 14.5px; font-weight: 500; transition: all .15s ease;
+}
+.nav-item:hover{ background: rgba(28,28,37,.9); color: var(--paper); border-color: rgba(255,255,255,.06); box-shadow: 0 0 18px rgba(255,93,58,.08); }
+.nav-item.active{ background: var(--signal-dim); border-color: var(--signal-soft); color: var(--paper); box-shadow: 0 0 24px var(--glow), inset 0 0 18px rgba(255,93,58,.06); }
+.nav-index{ font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); letter-spacing: 0.05em; }
+.nav-item.active .nav-index{ color: var(--signal); }
+
+.sidebar-bottom{ display: flex; flex-direction: column; gap: 10px; }
+
+/* WEATHER WIDGET */
+.weather-widget{ border: 1px solid rgba(255,93,58,.18); border-radius: 10px; padding: 14px 16px; background: rgba(28,28,37,.9); display: flex; flex-direction: column; gap: 10px; box-shadow: 0 0 26px rgba(255,93,58,.1); }
+.weather-loc{ font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; color: var(--paper-dim); text-transform: uppercase; }
+.weather-tabs{ display: flex; gap: 4px; }
+.weather-widget.expanded .weather-tabs{ position: relative; z-index: 5002; }
+.weather-tab-btn{ flex: 1; background: transparent; border: 1px solid var(--line); color: var(--paper-dim); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em; padding: 4px 6px; border-radius: 6px; cursor: pointer; transition: all .15s ease; text-transform: uppercase; }
+.weather-tab-btn:hover{ color: var(--paper); border-color: var(--signal-soft); box-shadow: 0 0 14px rgba(255,93,58,.12); }
+.weather-tab-btn.active{ color: var(--ink); background: var(--signal); border-color: var(--signal); font-weight: 600; box-shadow: 0 0 18px var(--glow-strong); }
+.weather-body{ display: flex; flex-direction: column; gap: 6px; }
+.weather-body.swapping{ animation: softSwap .24s ease; }
+.weather-now{ display: flex; align-items: center; justify-content: space-between; }
+.weather-temp{ font-family: var(--font-display); font-size: 28px; font-weight: 500; }
+.weather-desc{ font-size: 11px; color: var(--paper-dim); text-align: right; }
+.weather-list{ display: flex; flex-direction: column; gap: 4px; }
+.weather-row{ display: flex; justify-content: space-between; align-items: center; font-size: 11px; padding: 3px 0; border-bottom: 1px solid var(--line); }
+.weather-row:last-child{ border-bottom: none; }
+.weather-row-label{ color: var(--paper); font-family: var(--font-mono); font-size: 10.5px; }
+.weather-row-temp{ font-family: var(--font-mono); color: var(--paper-dim); font-size: 10.5px; }
+.weather-loading{ font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); text-align: center; padding: 8px 0; }
+.weather-widget{ cursor: pointer; position: relative; transform-origin: center; }
+.weather-widget.expanded{
+  position: fixed; top: 50%; left: 50%; width: min(640px, calc(100vw - 32px));
+  max-height: min(680px, calc(100vh - 48px)); transform: translate(-50%, -50%);
+  z-index: 5001; padding: 24px; border-color: rgba(255,93,58,.76); background: rgba(28,28,37,.98);
+  box-shadow: 0 24px 70px rgba(0,0,0,.34), 0 0 54px var(--glow-strong), inset 0 0 28px rgba(255,255,255,.035);
+  gap: 16px; cursor: default; overflow: auto; animation: weatherExpand .28s cubic-bezier(.2,.8,.2,1);
+  pointer-events: auto;
+}
+@keyframes weatherExpand{ from{ opacity:.35; transform: translate(-50%, -50%) scale(.82); } to{ opacity:1; transform: translate(-50%, -50%) scale(1); } }
+.weather-widget.expanded .weather-loc{ font-size: 12px; color: var(--signal); text-shadow: 0 0 12px rgba(255,93,58,.35); }
+.weather-widget.expanded .weather-tab-btn{ padding: 8px 10px; font-size: 11px; cursor: pointer; }
+.weather-widget.expanded .weather-temp{ font-size: 54px; }
+.weather-widget.expanded .weather-desc{ font-size: 14px; line-height: 1.5; color: var(--paper); }
+.weather-widget.expanded .weather-row{ padding: 10px 0; font-size: 13px; }
+.weather-widget.expanded .weather-row-label, .weather-widget.expanded .weather-row-temp{ font-size: 12px; color: var(--paper); }
+.weather-close{ display:none; position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:8px; border:1px solid var(--line); background:transparent; color:var(--paper-dim); font-family:var(--font-mono); cursor:pointer; }
+.weather-close:hover{ color:var(--paper); border-color:var(--signal-soft); }
+.weather-widget.expanded .weather-close{ display:flex; align-items:center; justify-content:center; }
+.weather-backdrop{ position:fixed; inset:0; background:radial-gradient(circle at 55% 45%, rgba(255,93,58,.16), rgba(12,12,16,.2) 42%, rgba(12,12,16,.34)); opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:2000; }
+body.weather-open .weather-backdrop{ opacity:1; pointer-events:auto; }
+.streak-readout{ display: flex; justify-content: space-between; align-items: baseline; }
+.streak-label{ font-size: 12px; color: var(--paper-dim); }
+.streak-value{ font-family: var(--font-mono); font-size: 16px; font-weight: 600; color: var(--signal); }
+.streak-track{ height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.streak-fill{ height: 100%; background: var(--signal); border-radius: 2px; transition: width .4s ease; }
+
+.content-shell{ flex: 1; display: grid; grid-template-columns: minmax(0, 960px) minmax(280px, 360px); gap: 28px; align-items: start; padding: 48px 56px 80px; max-width: 1440px; width: 100%; }
+.main{ min-width: 0; }
+.view{ display: none; opacity: 0; transform: translateY(12px); }
+.view.active{ display: block; opacity: 1; transform: translateY(0); animation: tabIn .42s cubic-bezier(.2,.8,.2,1); }
+.view.leaving{ display: block; position: absolute; inset: 0; pointer-events: none; animation: tabOut .24s ease forwards; }
+.main.transitioning{ position: relative; min-height: 520px; }
+@keyframes tabIn{ from{ opacity: 0; transform: translateY(14px) scale(.992); filter: blur(3px); } to{ opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+@keyframes tabOut{ from{ opacity: 1; transform: translateY(0); filter: blur(0); } to{ opacity: 0; transform: translateY(-8px); filter: blur(2px); } }
+
+.view-head{ margin-bottom: 36px; display: flex; flex-direction: column; gap: 8px; }
+.view-eyebrow{ font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; color: var(--signal); }
+.view-title{ font-family: var(--font-display); font-size: 42px; font-weight: 500; letter-spacing: -0.01em; }
+.block-title{ font-family: var(--font-display); font-size: 19px; font-weight: 500; }
+
+.command-rail{ position: sticky; top: 28px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.rail-card{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 18px 20px; box-shadow: 0 0 30px rgba(255,93,58,.08), inset 0 0 18px rgba(255,255,255,.025); }
+.rail-card.compact{ padding: 16px 18px; }
+.rail-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:12px; }
+.rail-title{ font-family:var(--font-mono); color:var(--signal); font-size:10px; letter-spacing:.2em; text-transform:uppercase; }
+.rail-value{ font-family:var(--font-display); font-size:24px; line-height:1; }
+.rail-list{ display:flex; flex-direction:column; gap:10px; }
+.rail-row{ display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(255,255,255,.06); padding-bottom:9px; font-size:12.5px; line-height:1.35; }
+.rail-row:last-child{ border-bottom:none; padding-bottom:0; }
+.rail-row strong{ color:var(--paper); font-weight:600; }
+.rail-row span{ color:var(--paper-dim); font-family:var(--font-mono); font-size:11px; white-space:nowrap; }
+.rail-empty{ color:var(--paper-dim); font-family:var(--font-mono); font-size:12px; line-height:1.45; }
+.rail-note{ width:100%; min-height:94px; resize:vertical; }
+.rail-actions{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.mode-toggle{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid var(--line); background:rgba(28,28,37,.82); color:var(--paper); border-radius:10px; padding:12px 14px; cursor:pointer; font-family:var(--font-body); transition:all .18s ease; }
+.mode-toggle:hover, .mode-toggle.active{ border-color:var(--signal-soft); box-shadow:0 0 22px rgba(255,93,58,.14); }
+.mode-pill{ width:38px; height:20px; border-radius:999px; background:var(--line); position:relative; flex-shrink:0; transition:background .18s ease; }
+.mode-pill::after{ content:''; position:absolute; top:3px; left:3px; width:14px; height:14px; border-radius:50%; background:var(--paper-dim); transition:transform .18s ease, background .18s ease; }
+.mode-toggle.active .mode-pill{ background:var(--signal-dim); }
+.mode-toggle.active .mode-pill::after{ transform:translateX(18px); background:var(--signal); box-shadow:0 0 14px var(--glow-strong); }
+body.focus-mode .quote-block, body.focus-mode .goals-block, body.focus-mode .command-rail .rail-card:not(.focus-keep){ opacity:.45; }
+
+/* ============================================================
+   NEW: OBJECTIVE TOP POPUP
+   ============================================================ */
+.top-popup {
+  position: fixed; top: -120px; left: 50%; transform: translateX(-50%);
+  background: var(--panel-2); border: 1px solid var(--signal); border-radius: 12px;
+  padding: 20px 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); z-index: 2000;
+  transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); min-width: 400px; max-width: 90%; text-align: center;
+}
+.top-popup.show { top: 28px; }
+.top-popup-title { font-family: var(--font-mono); font-size: 11px; color: var(--signal); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px; }
+.top-popup-body { font-family: var(--font-display); font-size: 18px; color: var(--paper); line-height: 1.4; }
+
+/* ============================================================
+   NEW: CALENDAR SCHEDULE COMPONENT
+   ============================================================ */
+.calendar-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(21,21,28,.9); padding: 14px 20px; border: 1px solid rgba(255,93,58,.14); border-radius: 12px; box-shadow: 0 0 24px rgba(255,93,58,.07); }
+.calendar-title { font-family: var(--font-display); font-size: 22px; font-weight: 500; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 28px; }
+.calendar-day-label { font-family: var(--font-mono); font-size: 11px; text-align: center; color: var(--paper-dim); padding-bottom: 6px; text-transform: uppercase; letter-spacing: 0.1em; }
+.calendar-cell { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-height: 85px; padding: 8px; cursor: pointer; transition: all .15s ease; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+.calendar-cell:hover { border-color: var(--signal-soft); background: var(--panel-2); box-shadow: 0 0 18px rgba(255,93,58,.1); }
+.calendar-cell.active { border-color: var(--signal); background: var(--panel-2); box-shadow: 0 0 22px rgba(255,93,58,.16), inset 0 0 12px rgba(255,93,58,0.12); }
+.calendar-cell.today { border: 1px solid var(--paper); }
+.calendar-cell.other-month { opacity: 0.3; }
+.day-num { font-family: var(--font-mono); font-size: 12px; color: var(--paper-dim); }
+.calendar-cell.today .day-num { color: var(--signal); font-weight: 700; }
+.day-dots { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; overflow: hidden; max-height: 48px; }
+.day-dot-item { font-size: 10px; padding: 1px 4px; border-radius: 4px; background: var(--signal-dim); color: var(--paper); border-left: 2px solid var(--signal); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-body); }
+
+/* ============================================================
+   NEW: WORKOUT TAB SYSTEM
+   ============================================================ */
+.workout-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 10px; overflow-x: auto; }
+.workout-tab-btn { background: transparent; border: 1px solid transparent; color: var(--paper-dim); font-family: var(--font-mono); font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+.workout-tab-btn:hover { color: var(--paper); background: var(--panel-2); }
+.workout-tab-btn.active { color: var(--ink); background: var(--signal); font-weight: 600; }
+.workout-tab-btn.today-highlight { border-color: var(--signal-soft); }
+.javelin-list.swapping, .routine-categories.swapping{ animation: softSwap .24s ease; }
+@keyframes softSwap{ from{ opacity:.45; transform:translateY(5px); } to{ opacity:1; transform:translateY(0); } }
+
+/* ============================================================
+   EXISTING COMPONENTS STYLES REUSED
+   ============================================================ */
+.quote-block{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 32px 36px; margin-bottom: 28px; position: relative; overflow: hidden; box-shadow: 0 0 34px rgba(255,93,58,.08), inset 0 0 20px rgba(255,255,255,.025); }
+.quote-block::before{ content: '"'; position: absolute; top: -38px; left: 18px; font-family: var(--font-display); font-size: 160px; color: var(--signal); opacity: 0.08; line-height: 1; }
+.quote-text{ font-family: var(--font-display); font-size: 24px; font-weight: 400; line-height: 1.5; position: relative; z-index: 1; }
+.quote-text.slide-anim{ animation: quoteSlideIn .6s ease; }
+@keyframes quoteSlideIn{
+  from{ opacity: 0; transform: translateX(40px); }
+  to{ opacity: 1; transform: translateX(0); }
+}
+.quote-foot{ display: flex; justify-content: space-between; align-items: center; margin-top: 18px; flex-wrap: wrap; gap: 10px; }
+.quote-author{ font-family: var(--font-mono); font-size: 12px; color: var(--paper-dim); letter-spacing: 0.05em; }
+.quote-actions{ display: flex; gap: 10px; }
+.ghost-btn{ background: transparent; border: 1px solid var(--line); color: var(--paper-dim); font-family: var(--font-body); font-size: 12.5px; font-weight: 500; padding: 8px 14px; border-radius: 8px; cursor: pointer; transition: all .15s ease; }
+.ghost-btn:hover{ border-color: var(--signal-soft); color: var(--paper); }
+.add-quote-form{ margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; gap: 10px; flex-wrap: wrap; }
+.add-quote-form input{ flex: 1; min-width: 160px; }
+
+.progress-block{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 32px 36px; margin-bottom: 28px; box-shadow: 0 0 34px rgba(255,93,58,.08), inset 0 0 20px rgba(255,255,255,.025); }
+.progress-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; }
+.progress-fraction{ font-family: var(--font-mono); font-size: 14px; color: var(--paper-dim); }
+.progress-dial-row{ display: flex; gap: 40px; align-items: center; flex-wrap: wrap; }
+.dial-wrap{ position: relative; width: 200px; height: 200px; flex-shrink: 0; }
+.dial{ width: 200px; height: 200px; transform: rotate(-90deg); }
+.dial-track{ fill: none; stroke: var(--line); stroke-width: 12; }
+.dial-progress{ fill: none; stroke: var(--signal); stroke-width: 12; stroke-linecap: round; stroke-dasharray: 540.35; stroke-dashoffset: 540.35; transition: stroke-dashoffset .6s ease; }
+.dial-center{ position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.dial-percent{ font-family: var(--font-display); font-size: 44px; font-weight: 600; }
+.dial-caption{ font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; color: var(--paper-dim); text-transform: uppercase; }
+.progress-breakdown{ flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 14px; }
+.breakdown-row{ display: flex; flex-direction: column; gap: 6px; }
+.breakdown-label-row{ display: flex; justify-content: space-between; font-size: 13px; }
+.breakdown-label{ color: var(--paper); }
+.breakdown-count{ font-family: var(--font-mono); color: var(--paper-dim); }
+.breakdown-track{ height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.breakdown-fill{ height: 100%; background: var(--signal); border-radius: 3px; transition: width .4s ease; }
+
+.goals-block{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.goal-card{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 26px 28px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 0 28px rgba(255,93,58,.07); }
+.goal-eyebrow{ font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; color: var(--signal); }
+.goal-title{ font-family: var(--font-display); font-size: 18px; font-weight: 500; }
+.goal-input{ background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; color: var(--paper); font-family: var(--font-body); font-size: 13.5px; padding: 12px 14px; resize: vertical; min-height: 90px; margin-top: 4px; }
+.goal-input:focus{ outline: none; border-color: var(--signal-soft); }
+
+.inline-form{ display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+input, textarea{ background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; color: var(--paper); font-family: var(--font-body); font-size: 13.5px; padding: 12px 14px; }
+input:focus, textarea:focus{ outline: none; border-color: var(--signal-soft); }
+input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
+.time-input{ width: 130px; font-family: var(--font-mono); }
+.text-input{ flex: 1; min-width: 200px; }
+.solid-btn{ background: var(--signal); border: 1px solid var(--signal); color: var(--ink); font-family: var(--font-body); font-size: 13.5px; font-weight: 600; padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: opacity .15s ease, box-shadow .15s ease; box-shadow: 0 0 18px rgba(255,93,58,.28); }
+.solid-btn:hover{ opacity: 0.9; box-shadow: 0 0 28px rgba(255,93,58,.46); }
+
+.timeline{ display: flex; flex-direction: column; border-left: 1px solid var(--line); padding-left: 28px; margin-left: 6px; }
+.timeline-row{ position: relative; padding: 16px 0; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; gap: 20px; }
+.timeline-row:last-child{ border-bottom: none; }
+.timeline-row::before{ content: ''; position: absolute; left: -33px; top: 23px; width: 9px; height: 9px; border-radius: 50%; background: var(--ink); border: 2px solid var(--signal); }
+.timeline-time{ font-family: var(--font-mono); font-size: 13px; color: var(--signal); min-width: 56px; padding-top: 1px; }
+.timeline-text{ flex: 1; font-size: 14.5px; line-height: 1.5; }
+.timeline-remove{ background: transparent; border: none; color: var(--paper-dim); font-size: 13px; cursor: pointer; font-family: var(--font-mono); padding: 0; }
+.timeline-remove:hover{ color: var(--signal); }
+.empty-note{ font-family: var(--font-mono); font-size: 12.5px; color: var(--paper-dim); padding: 24px 0; }
+
+.panel{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 28px 32px; margin-bottom: 24px; box-shadow: 0 0 34px rgba(255,93,58,.08), inset 0 0 20px rgba(255,255,255,.025); }
+.panel-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; flex-wrap: wrap; gap: 6px; }
+.panel-note{ font-size: 12px; color: var(--paper-dim); }
+.check-list{ display: flex; flex-direction: column; gap: 2px; list-style: none; }
+.check-item{ display: flex; align-items: center; gap: 14px; padding: 11px 4px; border-bottom: 1px solid var(--line); }
+.check-item:last-child{ border-bottom: none; }
+.check-box{ width: 18px; height: 18px; flex-shrink: 0; border: 1.5px solid var(--paper-dim); border-radius: 5px; cursor: pointer; position: relative; background: transparent; transition: all .15s ease; }
+.check-box.checked{ background: var(--signal); border-color: var(--signal); }
+.check-box.checked::after{ content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ink); font-weight: 700; }
+.check-label{ flex: 1; font-size: 14px; line-height: 1.4; }
+.check-item.done .check-label{ text-decoration: line-through; color: var(--paper-dim); }
+.check-remove{ background: transparent; border: none; color: var(--paper-dim); font-size: 12px; cursor: pointer; font-family: var(--font-mono); opacity: 0; transition: opacity .15s ease; }
+.check-item:hover .check-remove{ opacity: 1; }
+.check-remove:hover{ color: var(--signal); }
+.history-toggle-row{ margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.check-list.history{ margin-top: 14px; }
+.check-meta{ font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); margin-left: 8px; }
+
+.routine-categories{ display: flex; flex-direction: column; gap: 24px; }
+.routine-category{ border: 1px solid rgba(255,93,58,.14); border-radius: 10px; padding: 20px 22px; background: rgba(28,28,37,.9); box-shadow: 0 0 22px rgba(255,93,58,.06); }
+.routine-category-head{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.routine-category-title{ font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; color: var(--signal); }
+.routine-add-form{ display: flex; gap: 10px; margin-top: 14px; }
+.routine-add-form input{ flex: 1; }
+.routine-add-form button{ padding: 10px 16px; font-size: 12.5px; }
+
+.hidden{ display: none !important; }
+
+.javelin-panel{ overflow:hidden; }
+.gym-summary{ display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+.gym-focus-card{ display:flex; justify-content:space-between; align-items:center; gap:16px; border:1px solid rgba(255,93,58,.16); border-radius:10px; padding:16px 18px; background:rgba(28,28,37,.9); box-shadow: 0 0 24px rgba(255,93,58,.08); }
+.gym-kicker{ display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; color:var(--signal); text-transform:uppercase; margin-bottom:4px; }
+.gym-focus-card h3{ font-family:var(--font-display); font-size:22px; font-weight:500; margin:0; }
+.gym-progress-pill{ flex-shrink:0; font-family:var(--font-mono); font-size:12px; color:var(--paper); border:1px solid var(--line); border-radius:999px; padding:7px 10px; }
+.gym-progress-track{ height:6px; border-radius:3px; background:var(--line); overflow:hidden; }
+.gym-progress-fill{ height:100%; background:var(--signal); border-radius:3px; transition:width .25s ease; }
+.javelin-item{ align-items:flex-start; padding:14px 4px; }
+.javelin-exercise-head{ display:flex; justify-content:space-between; gap:14px; align-items:baseline; }
+.javelin-exercise-head span{ flex-shrink:0; color:var(--signal); font-family:var(--font-mono); font-size:12px; }
+.javelin-note{ display:block; color:var(--paper-dim); font-size:12.5px; line-height:1.45; margin-top:4px; }
+.gym-accent-blue .gym-kicker, .gym-accent-blue .gym-progress-pill{ color:#70aee0; }
+.gym-accent-red .gym-kicker, .gym-accent-red .gym-progress-pill{ color:#ff725f; }
+.gym-accent-green .gym-kicker, .gym-accent-green .gym-progress-pill{ color:#76d08e; }
+.gym-accent-orange .gym-kicker, .gym-accent-orange .gym-progress-pill{ color:#e99a5c; }
+.gym-accent-purple .gym-kicker, .gym-accent-purple .gym-progress-pill{ color:#b893e4; }
+.gym-accent-gray .gym-kicker, .gym-accent-gray .gym-progress-pill{ color:var(--paper-dim); }
+
+@media (max-width: 880px){
+  .app{ flex-direction: column; }
+  .sidebar{ width: 100%; height: auto; position: relative; flex-direction: row; align-items: center; justify-content: space-between; padding: 16px 20px; gap: 16px; }
+  .sidebar-top{ flex-direction: row; align-items: center; gap: 16px; }
+  .date-readout, .sidebar-bottom{ display: none; }
+  .nav{ flex-direction: row; margin-top: 0; overflow-x: auto; }
+  .nav-item{ white-space: nowrap; }
+  .content-shell{ display:block; padding: 28px 20px 60px; max-width: 100%; }
+  .command-rail{ position:static; margin-top:26px; }
+  .view-title{ font-size: 32px; }
+  .goals-block{ grid-template-columns: 1fr; }
+  .progress-dial-row{ flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div id="weatherBackdrop" class="weather-backdrop"></div>
+
+<div id="topPopup" class="top-popup">
+  <div id="topPopupTitle" class="top-popup-title">Weekly Objective</div>
+  <div id="topPopupBody" class="top-popup-body">Focused & Intentional</div>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <span class="brand-mark">D</span>
+        <div class="brand-text">
+          <span class="brand-name">DISCIPLINE</span>
+          <span class="brand-sub">Daily Operating System</span>
+        </div>
+      </div>
+      <div class="date-readout">
+        <span class="date-label">TODAY</span>
+        <span id="todayDate" class="date-value">—</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-tab="dashboard">
+        <span class="nav-index">01</span>
+        <span class="nav-label">Overview</span>
+      </button>
+      <button class="nav-item" data-tab="schedule">
+        <span class="nav-index">02</span>
+        <span class="nav-label">Schedule</span>
+      </button>
+      <button class="nav-item" data-tab="tasks">
+        <span class="nav-index">03</span>
+        <span class="nav-label">Tasks &amp; Routines</span>
+      </button>
+      <button class="nav-item" data-tab="gym">
+        <span class="nav-index">04</span>
+        <span class="nav-label">Gym Routine</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div id="weatherWidget" class="weather-widget" role="button" tabindex="0" aria-label="Expand weather forecast">
+        <button id="weatherClose" class="weather-close" type="button" aria-label="Close weather">x</button>
+        <span class="weather-loc">Winchester, MA</span>
+        <div class="weather-tabs">
+          <button class="weather-tab-btn active" data-range="daily">Daily</button>
+          <button class="weather-tab-btn" data-range="weekly">Weekly</button>
+          <button class="weather-tab-btn" data-range="monthly">Monthly</button>
+        </div>
+        <div id="weatherBody" class="weather-body">
+          <div class="weather-loading">Loading weather…</div>
+        </div>
+      </div>
+      <div class="streak-readout">
+        <span class="streak-label">Today's completion</span>
+        <span id="sidebarPercent" class="streak-value">0%</span>
+      </div>
+      <div class="streak-track">
+        <div id="sidebarBar" class="streak-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="content-shell">
+  <main class="main">
+    <section id="tab-dashboard" class="view active">
+      <header class="view-head">
+        <span class="view-eyebrow">01 / Overview</span>
+        <h1 class="view-title">Today's Briefing</h1>
+      </header>
+
+      <div class="quote-block">
+        <p id="quoteText" class="quote-text">Loading...</p>
+        <div class="quote-foot">
+          <span id="quoteAuthor" class="quote-author"></span>
+          <div class="quote-actions">
+            <button id="newQuoteBtn" class="ghost-btn">Next quote →</button>
+            <button id="addQuoteBtn" class="ghost-btn">+ Add your own</button>
+          </div>
+        </div>
+        <div id="addQuoteForm" class="add-quote-form hidden">
+          <input id="newQuoteText" type="text" placeholder="Quote text" />
+          <input id="newQuoteAuthor" type="text" placeholder="Author (optional)" />
+          <button id="saveQuoteBtn" class="solid-btn">Save</button>
+        </div>
+      </div>
+
+      <div class="progress-block">
+        <div class="progress-head">
+          <h2 class="block-title">Routine Completion</h2>
+          <span id="progressFraction" class="progress-fraction">0 / 0</span>
+        </div>
+        <div class="progress-dial-row">
+          <div class="dial-wrap">
+            <svg viewBox="0 0 200 200" class="dial">
+              <circle class="dial-track" cx="100" cy="100" r="86"></circle>
+              <circle id="dialProgress" class="dial-progress" cx="100" cy="100" r="86"></circle>
+            </svg>
+            <div class="dial-center">
+              <span id="dialPercent" class="dial-percent">0%</span>
+              <span class="dial-caption">complete</span>
+            </div>
+          </div>
+          <div id="progressBreakdown" class="progress-breakdown"></div>
+        </div>
+      </div>
+
+      <div class="goals-block">
+        <div class="goal-card">
+          <span class="goal-eyebrow">This week</span>
+          <h3 class="goal-title">Weekly Objective</h3>
+          <textarea id="weeklyGoal" class="goal-input" placeholder="What does a successful week look like? (Press Enter to showcase)"></textarea>
+        </div>
+        <div class="goal-card">
+          <span class="goal-eyebrow">This month</span>
+          <h3 class="goal-title">Monthly Objective</h3>
+          <textarea id="monthlyGoal" class="goal-input" placeholder="What's the bigger target this month? (Press Enter to showcase)"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-schedule" class="view">
+      <header class="view-head">
+        <span class="view-eyebrow">02 / Schedule</span>
+        <h1 class="view-title">Monthly Schedule</h1>
+      </header>
+
+      <div class="calendar-controls">
+        <button id="prevMonthBtn" class="ghost-btn">← Prev</button>
+        <div id="calendarMonthTitle" class="calendar-title">June 2026</div>
+        <button id="nextMonthBtn" class="ghost-btn">Next →</button>
+      </div>
+
+      <div id="calendarGrid" class="calendar-grid"></div>
+
+      <div class="panel" id="dayDetailPanel">
+        <h3 id="selectedDayTitle" class="block-title" style="margin-bottom: 18px; color: var(--signal);">Select a day</h3>
+        <form id="scheduleForm" class="inline-form">
+          <input type="time" id="scheduleTime" class="time-input" placeholder="Optional">
+          <input type="text" id="scheduleText" class="text-input" placeholder="What's happening?" required>
+          <button type="submit" class="solid-btn">Add Event</button>
+        </form>
+        <div class="timeline" id="timelineList"></div>
+      </div>
+    </section>
+
+    <section id="tab-tasks" class="view">
+      <header class="view-head">
+        <span class="view-eyebrow">03 / Tasks &amp; Routines</span>
+        <h1 class="view-title">Execution Log</h1>
+      </header>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="block-title">To-do — Today</h2>
+        </div>
+        <form id="todoForm" class="inline-form compact">
+          <input type="text" id="todoText" class="text-input" placeholder="Add a task for today...">
+          <button type="submit" class="solid-btn">Add</button>
+        </form>
+        <ul id="todoList" class="check-list"></ul>
+
+        <div class="history-toggle-row">
+          <button id="historyToggle" class="ghost-btn">View completed history ▾</button>
+        </div>
+        <ul id="todoHistory" class="check-list history hidden"></ul>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="block-title">Routines</h2>
+          <span class="panel-note">Checked items count toward today's completion ring on Overview.</span>
+        </div>
+        <div class="routine-categories" id="routineCategories"></div>
+      </div>
+    </section>
+
+    <section id="tab-gym" class="view">
+      <header class="view-head">
+        <span class="view-eyebrow">04 / Javelin</span>
+        <h1 class="view-title">Gym Routine</h1>
+      </header>
+
+      <div class="panel javelin-panel">
+        <div class="panel-head">
+          <h2 class="block-title">Today's Javelin Program</h2>
+          <span id="gymDayNote" class="panel-note">Day-specific training plan</span>
+        </div>
+        <div id="gymDayTabs" class="workout-tabs"></div>
+        <div id="gymSummary" class="gym-summary"></div>
+        <ul id="gymList" class="check-list javelin-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <aside class="command-rail" aria-label="Daily command center">
+    <div class="rail-card focus-keep">
+      <div class="rail-head">
+        <span class="rail-title">Command Center</span>
+        <span id="railCompletion" class="rail-value">0%</span>
+      </div>
+      <button id="focusModeToggle" class="mode-toggle" type="button">
+        <span>Focus mode</span>
+        <span class="mode-pill" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="rail-card">
+      <div class="rail-head">
+        <span class="rail-title">Today Schedule</span>
+        <span id="railEventCount" class="panel-note">0</span>
+      </div>
+      <div id="railScheduleList" class="rail-list"></div>
+    </div>
+
+    <div class="rail-card">
+      <div class="rail-head">
+        <span class="rail-title">Next Actions</span>
+        <span id="railTaskCount" class="panel-note">0</span>
+      </div>
+      <div id="railTaskList" class="rail-list"></div>
+    </div>
+
+    <div class="rail-card">
+      <div class="rail-head">
+        <span class="rail-title">Javelin Focus</span>
+        <span id="railGymDay" class="panel-note">Today</span>
+      </div>
+      <div id="railGymFocus" class="rail-list"></div>
+    </div>
+
+    <div class="rail-card compact">
+      <div class="rail-head">
+        <span class="rail-title">Quick Notes</span>
+        <span id="railNoteStatus" class="panel-note">saved</span>
+      </div>
+      <textarea id="quickNotes" class="rail-note" placeholder="Training cues, reminders, things to fix tomorrow..."></textarea>
+    </div>
+  </aside>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   STATE & STORAGE
+   ============================================================ */
+const STORAGE_KEY = 'disciplineOS_v2';
+
+const DEFAULT_QUOTES = [
+  { text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln" },
+  { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Will Durant, on Aristotle" },
+  { text: "The pain of discipline is far less than the pain of regret.", author: "Unknown" },
+  { text: "Small disciplines repeated with consistency every day lead to great achievements.", author: "John C. Maxwell" }
+];
+
+const JAVELIN_PROGRAM = {
+  1: {
+    focus: 'Lower Power + Olympic Lifts', badge: 'Leg Power', accent: 'gold',
+    items: [
+      { id:'jav-mon-1', name:'Hang Power Cleans', sets:'5x3', note:'Maximum triple extension. Focus on a violent hip snap, not an arm pull.' },
+      { id:'jav-mon-2', name:'Box Squats (Heavy)', sets:'4x5', note:'Dead stop on the box. Builds explosive starting strength for the block.' },
+      { id:'jav-mon-3', name:'Heavy Barbell Reverse Lunges', sets:'4x6/leg', note:'Primary block-leg builder. Control the descent.' },
+      { id:'jav-mon-4', name:'Snatch-Grip High Pulls', sets:'4x4', note:'Heavier than clean. Explosive pull to chin. Trains rapid force.' },
+      { id:'jav-mon-5', name:'Nordic Hamstring Curls', sets:'3x5', note:'Hamstring protection for explosive approach speed. Non-negotiable injury prevention.' },
+      { id:'jav-mon-6', name:'Max Split Squat Jumps', sets:'3xmax', note:'Bodyweight finisher to failure.' }
+    ]
+  },
+  2: {
+    focus: 'Upper Strength + Arm Integrity', badge: 'Modified', accent: 'blue',
+    items: [
+      { id:'jav-tue-1', name:'Overhead Press (Barbell)', sets:'5x5', note:'Trains the overhead delivery position. More javelin-specific than flat bench.' },
+      { id:'jav-tue-2', name:'Weighted Pull-Ups', sets:'4x6', note:'Wide grip. Builds the back needed to decelerate your arm.' },
+      { id:'jav-tue-3', name:'Heavy DB Pullovers', sets:'4x8', note:'Strength-through-length for lats and pec. Let it stretch fully at the bottom.' },
+      { id:'jav-tue-4', name:'Cable Face Pulls', sets:'4x15', note:'Rear delt and external rotator cuff. Keeps the shoulder healthy under throwing load.' },
+      { id:'jav-tue-5', name:'Serratus Punches (Cable/Band)', sets:'3x12', note:'Scapular stability so force goes into the javelin instead of the shoulder joint.' },
+      { id:'jav-tue-6', name:'Drop-Catch Bicep Curls', sets:'3x8', note:'Eccentric arm control for braking force at the elbow.' }
+    ]
+  },
+  3: {
+    focus: 'Technical Throwing + Sprint Work', badge: 'Highest Priority', accent: 'red',
+    items: [
+      { id:'jav-wed-1', name:'Sprint Acceleration (30m Runs)', sets:'6x30m', note:'Run at 95 percent. Rest 3 minutes. Approach speed feeds release velocity.' },
+      { id:'jav-wed-2', name:'Standing Throws (No Run-Up)', sets:'10 throws', note:'Focus on hip-first sequencing and full external rotation layback.' },
+      { id:'jav-wed-3', name:'3-Step Approach Throws', sets:'10 throws', note:'Build cross-step rhythm, block, and throw at controlled speed.' },
+      { id:'jav-wed-4', name:'Full Approach Throws', sets:'8 throws', note:'70-80 percent intensity. Smooth speed transfer, not max effort.' },
+      { id:'jav-wed-5', name:'Block Leg Isometric', sets:'3x90s', note:'Split squat hold per leg, back knee one inch off the ground.' }
+    ]
+  },
+  4: {
+    focus: 'Speed-Strength + Unilateral Power', badge: 'Power Day', accent: 'green',
+    items: [
+      { id:'jav-thu-1', name:'Dumbbell Split Squat Jumps', sets:'4x5/leg', note:'25-30 lb per hand. Mimics drive-off in the delivery stride.' },
+      { id:'jav-thu-2', name:'Bulgarian Split Squats (Loaded)', sets:'4x8/leg', note:'DB or barbell. Keep center of mass stacked.' },
+      { id:'jav-thu-3', name:'Split Squat Depth Drops', sets:'4x5/leg', note:'Land in block stance with zero wobble. Reactive strength for the plant.' },
+      { id:'jav-thu-4', name:'Single-Leg RDL (Dumbbell)', sets:'3x10/leg', note:'Posterior chain balance and lower-back protection.' },
+      { id:'jav-thu-5', name:'Broad Jumps (Max Distance)', sets:'4x5', note:'Horizontal power output for approach explosiveness.' },
+      { id:'jav-thu-6', name:'Heavy Dead Hangs', sets:'3x60s', note:'Spinal decompression plus grip and forearm strength.' }
+    ]
+  },
+  5: {
+    focus: 'Rotational Power + Arm Care', badge: 'Arm Health', accent: 'orange',
+    items: [
+      { id:'jav-fri-1', name:'Rotational Med Ball Chest Pass', sets:'4x8/side', note:'Rotate hips first, then throw. Trains hip-to-shoulder sequencing.' },
+      { id:'jav-fri-2', name:'Split Squat Rotational Med Ball Slams', sets:'4x8/side', note:'Block stance. Violent slam while the legs stay planted.' },
+      { id:'jav-fri-3', name:'Med Ball Wall Dribbles', sets:'3x30s', note:'Fast wrist and forearm conditioning.' },
+      { id:'jav-fri-4', name:'2kg Plyo Ball ER Pulses', sets:'4x15', note:'Light, fast external rotation conditioning.' },
+      { id:'jav-fri-5', name:"Band Pull-Aparts + Y-T-W's", sets:'3x15 each', note:'Mid-trap and lower-trap work to prevent shoulder impingement.' },
+      { id:'jav-fri-6', name:'Ulnar Nerve Flossing + Forearm Rolling', sets:'2-3 min', note:'Follow with lacrosse ball on forearm, pec minor, and teres major.' }
+    ]
+  },
+  6: {
+    focus: 'Active Recovery + Mobility', badge: 'Recovery', accent: 'purple',
+    items: [
+      { id:'jav-sat-1', name:'Dead Hangs (Passive)', sets:'3x60s', note:'Spinal decompression after the lifting week.' },
+      { id:'jav-sat-2', name:"Thrower's Stretch", sets:'3x45s/side', note:'Thoracic spine mobility for deeper layback.' },
+      { id:'jav-sat-3', name:'90/90 Hip Stretch + Pigeon Pose', sets:'2x60s/side', note:'Hip mobility for a wider, stronger block stride.' },
+      { id:'jav-sat-4', name:'Pliability Massage', sets:'6 min total', note:'Lacrosse ball on forearm, pec minor, and teres major.' },
+      { id:'jav-sat-5', name:'Light Jog / Walk', sets:'20 min', note:'Conversational pace active recovery.' }
+    ]
+  },
+  0: {
+    focus: 'Full Rest', badge: 'Off', accent: 'gray',
+    items: [
+      { id:'jav-sun-1', name:'Complete Rest', sets:'All day', note:'Sleep 8-9 hours, hit protein, hydrate, and let adaptation happen.' },
+      { id:'jav-sun-2', name:'Mental Review', sets:'15 min', note:'Watch elite throws and mentally rehearse approach, block, and release.' }
+    ]
+  }
+};
+const DEFAULT_STATE = {
+  quotes: DEFAULT_QUOTES,
+  weeklyGoal: '',
+  monthlyGoal: '',
+  schedule: [], // 구조 변경: { id, date (YYYY-MM-DD), time, text }
+  todos: [],
+  quickNotes: '',
+  focusMode: false,
+  gymRoutine: [], // 운동 루틴 저장 배열 추가
+  gymCompletions: {},
+  routines: {
+    "운동": [
+      { id: 'ex-mon', text: '월: 상체 웨이트', done: false, dayIndex: 1 },
+      { id: 'ex-tue', text: '화: 하체 및 코어', done: false, dayIndex: 2 },
+      { id: 'ex-wed', text: '수: 상체 볼륨', done: false, dayIndex: 3 },
+      { id: 'ex-thu', text: '목: 하체 및 스트레칭', done: false, dayIndex: 4 },
+      { id: 'ex-fri', text: '금: 상체 컴파운드', done: false, dayIndex: 5 },
+      { id: 'ex-sat', text: '토: 유산소 및 기능성', done: false, dayIndex: 6 },
+      { id: 'ex-sun', text: '일: 휴식 또는 가벼운 산책', done: false, dayIndex: 0 }
+    ],
+    "피부 관리": [
+      { id: 'sk-am', text: '아침: 세안, BHA 5%, 아크네 트리트먼트, 로션+선크림', done: false },
+      { id: 'sk-pm', text: '저녁: 샤워, 나이트 로션, BHA (일요일에만)', done: false }
+    ],
+    "식단": [
+      { id: 'di-bre', text: '아침: 오트밀, 바나나, 견과류', done: false },
+      { id: 'di-sna', text: '간식: 블루베리 스무디', done: false },
+      { id: 'di-din', text: '저녁: 단백질 위주', done: false },
+      { id: 'di-wat', text: '물 2L 이상 마시기', done: false }
+    ],
+    "작은 습관들": [
+      { id: 'ha-rea', text: '책 읽기', done: false },
+      { id: 'ha-str', text: '자기 전에 스트레칭', done: false },
+      { id: 'ha-scr', text: '스크린타임 줄이기', done: false }
+    ]
+  },
+  routineResetDate: null
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return structuredClone(DEFAULT_STATE);
+    const parsed = JSON.parse(raw);
+    return Object.assign(structuredClone(DEFAULT_STATE), parsed, {
+      quotes: parsed.quotes && parsed.quotes.length ? parsed.quotes : DEFAULT_QUOTES,
+      routines: parsed.routines || structuredClone(DEFAULT_STATE.routines),
+      gymCompletions: parsed.gymCompletions || {},
+      quickNotes: parsed.quickNotes || '',
+      focusMode: !!parsed.focusMode
+    });
+  }catch(e){
+    return structuredClone(DEFAULT_STATE);
+  }
+}
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+
+function maybeResetRoutinesForNewDay(){
+  const todayKey = new Date().toDateString();
+  if(state.routineResetDate !== todayKey){
+    Object.keys(state.routines).forEach(cat => {
+      state.routines[cat].forEach(item => item.done = false);
+    });
+    state.routineResetDate = todayKey;
+    saveState();
+  }
+}
+maybeResetRoutinesForNewDay();
+
+function uid(){ return Math.random().toString(36).slice(2, 10); }
+function escapeHtml(str){ const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+function formatTime12(time24){
+  if(!time24) return '';
+  const [h, m] = time24.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2,'0')} ${period}`;
+}
+function todayKey(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ============================================================
+   RIGHT RAIL COMMAND CENTER
+   ============================================================ */
+const railCompletion = document.getElementById('railCompletion');
+const railEventCount = document.getElementById('railEventCount');
+const railScheduleList = document.getElementById('railScheduleList');
+const railTaskCount = document.getElementById('railTaskCount');
+const railTaskList = document.getElementById('railTaskList');
+const railGymDay = document.getElementById('railGymDay');
+const railGymFocus = document.getElementById('railGymFocus');
+const quickNotes = document.getElementById('quickNotes');
+const railNoteStatus = document.getElementById('railNoteStatus');
+const focusModeToggle = document.getElementById('focusModeToggle');
+
+function renderRailRows(el, rows, emptyText){
+  el.innerHTML = '';
+  if(rows.length === 0){
+    el.innerHTML = `<p class="rail-empty">${emptyText}</p>`;
+    return;
+  }
+  rows.forEach(row => {
+    const item = document.createElement('div');
+    item.className = 'rail-row';
+    item.innerHTML = `<strong>${escapeHtml(row.title)}</strong><span>${escapeHtml(row.meta)}</span>`;
+    el.appendChild(item);
+  });
+}
+
+function renderCommandRail(){
+  const dateKey = todayKey();
+  const todayEvents = state.schedule
+    .filter(s => s.date === dateKey)
+    .sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'))
+    .slice(0, 4)
+    .map(e => ({ title: e.text, meta: e.time ? formatTime12(e.time) : 'Anytime' }));
+
+  const activeTodos = state.todos
+    .filter(t => !t.done)
+    .slice(0, 4)
+    .map((t, i) => ({ title: t.text, meta: `#${i + 1}` }));
+
+  const todayDay = new Date().getDay();
+  const gymProgram = JAVELIN_PROGRAM[todayDay];
+  const gymRows = gymProgram.items.slice(0, 3).map(item => ({ title: item.name, meta: item.sets }));
+
+  const percentText = document.getElementById('dialPercent')?.textContent || '0%';
+  railCompletion.textContent = percentText;
+  railEventCount.textContent = `${todayEvents.length}`;
+  railTaskCount.textContent = `${activeTodos.length}`;
+  railGymDay.textContent = JAVELIN_DAY_NAMES[todayDay].slice(0, 3);
+
+  renderRailRows(railScheduleList, todayEvents, 'No events scheduled today.');
+  renderRailRows(railTaskList, activeTodos, 'No active tasks. Clean slate.');
+  renderRailRows(railGymFocus, gymRows, gymProgram.focus);
+
+  quickNotes.value = state.quickNotes || '';
+  document.body.classList.toggle('focus-mode', !!state.focusMode);
+  focusModeToggle.classList.toggle('active', !!state.focusMode);
+}
+
+let notesTimer;
+quickNotes.addEventListener('input', () => {
+  state.quickNotes = quickNotes.value;
+  railNoteStatus.textContent = 'saving...';
+  clearTimeout(notesTimer);
+  notesTimer = setTimeout(() => {
+    saveState();
+    railNoteStatus.textContent = 'saved';
+  }, 350);
+});
+
+focusModeToggle.addEventListener('click', () => {
+  state.focusMode = !state.focusMode;
+  saveState();
+  renderCommandRail();
+});
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const navItems = document.querySelectorAll('.nav-item');
+const views = document.querySelectorAll('.view');
+const mainEl = document.querySelector('.main');
+let activeTab = 'dashboard';
+
+navItems.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    if(tab === activeTab) return;
+    const currentView = document.getElementById(`tab-${activeTab}`);
+    const nextView = document.getElementById(`tab-${tab}`);
+
+    navItems.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if(currentView){
+      mainEl.classList.add('transitioning');
+      currentView.classList.remove('active');
+      currentView.classList.add('leaving');
+      setTimeout(() => {
+        currentView.classList.remove('leaving');
+        mainEl.classList.remove('transitioning');
+      }, 260);
+    }
+
+    nextView.classList.add('active');
+    activeTab = tab;
+    if(tab === 'schedule') { renderCalendar(); }
+    if(tab === 'gym') { renderGymRoutine(); } // 04번 탭 클릭 시 화면 갱신 추가
+    renderCommandRail();
+  });
+});
+
+/* ============================================================
+   DATE & CALENDAR STATE
+   ============================================================ */
+let calendarDate = new Date(); // 달력 조작 기준일
+let selectedDateStr = new Date().toISOString().split('T')[0]; // 선택된 날짜 (YYYY-MM-DD)
+let activeWorkoutDayTab = new Date().getDay(); // 운동관리 탭 활성화 기준 (0=일, 1=월...)
+
+function renderDate(){
+  const now = new Date();
+  const opts = { month: 'short', day: 'numeric', weekday: 'short' };
+  document.getElementById('todayDate').textContent = now.toLocaleDateString('en-US', opts);
+}
+renderDate();
+
+/* ============================================================
+   NEW FEATURE: OBJECTIVE POPUP ON ENTER
+   ============================================================ */
+const topPopup = document.getElementById('topPopup');
+const topPopupTitle = document.getElementById('topPopupTitle');
+const topPopupBody = document.getElementById('topPopupBody');
+let popupTimeout;
+
+function showTopPopup(title, text) {
+  if(!text) return;
+  clearTimeout(popupTimeout);
+  topPopupTitle.textContent = title;
+  topPopupBody.textContent = text;
+  topPopup.classList.add('show');
+  
+  popupTimeout = setTimeout(() => {
+    topPopup.classList.remove('show');
+  }, 4000);
+}
+
+document.getElementById('weeklyGoal').addEventListener('keydown', function(e) {
+  if(e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    state.weeklyGoal = this.value;
+    saveState();
+    showTopPopup("Weekly Objective", this.value);
+  }
+});
+
+document.getElementById('monthlyGoal').addEventListener('keydown', function(e) {
+  if(e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    state.monthlyGoal = this.value;
+    saveState();
+    showTopPopup("Monthly Objective", this.value);
+  }
+});
+
+/* ============================================================
+   NEW FEATURE: CALENDAR GENERATOR & SCHEDULER
+   ============================================================ */
+const prevMonthBtn = document.getElementById('prevMonthBtn');
+const nextMonthBtn = document.getElementById('nextMonthBtn');
+const calendarMonthTitle = document.getElementById('calendarMonthTitle');
+const calendarGrid = document.getElementById('calendarGrid');
+const selectedDayTitle = document.getElementById('selectedDayTitle');
+const scheduleForm = document.getElementById('scheduleForm');
+const timelineList = document.getElementById('timelineList');
+
+prevMonthBtn.addEventListener('click', () => { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); });
+nextMonthBtn.addEventListener('click', () => { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); });
+
+function renderCalendar() {
+  calendarGrid.innerHTML = '';
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+  
+  calendarMonthTitle.textContent = calendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  
+  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  dayLabels.forEach(label => {
+    const el = document.createElement('div');
+    el.className = 'calendar-day-label';
+    el.textContent = label;
+    calendarGrid.appendChild(el);
+  });
+  
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const prevTotalDays = new Date(year, month, 0).getDate();
+  
+  // 이전달 빈 채우기
+  for(let i = firstDayIndex; i > 0; i--) {
+    const dayNum = prevTotalDays - i + 1;
+    const dummyCell = document.createElement('div');
+    dummyCell.className = 'calendar-cell other-month';
+    dummyCell.innerHTML = `<span class="day-num">${dayNum}</span>`;
+    calendarGrid.appendChild(dummyCell);
+  }
+  
+  // 당월 일수 채우기
+  const todayStr = new Date().toISOString().split('T')[0];
+  for(let d = 1; d <= totalDays; d++) {
+    const cell = document.createElement('div');
+    const currentStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    
+    cell.className = 'calendar-cell';
+    if(currentStr === todayStr) cell.classList.add('today');
+    if(currentStr === selectedDateStr) cell.classList.add('active');
+    
+    // 일정 요약 보여주기 (최대 2개 노출)
+    const dayEvents = state.schedule.filter(s => s.date === currentStr).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+    let dotsHtml = '';
+    if(dayEvents.length > 0) {
+      dotsHtml = '<div class="day-dots">';
+      dayEvents.slice(0, 2).forEach(ev => {
+        dotsHtml += `<div class="day-dot-item">${ev.text}</div>`;
+      });
+      if(dayEvents.length > 2) dotsHtml += `<div class="day-dot-item" style="border:none; background:transparent; font-size:9px; color:var(--paper-dim)">+${dayEvents.length-2} more</div>`;
+      dotsHtml += '</div>';
+    }
+    
+    cell.innerHTML = `
+      <span class="day-num">${d}</span>
+      ${dotsHtml}
+    `;
+    
+    cell.addEventListener('click', () => {
+      selectedDateStr = currentStr;
+      document.querySelectorAll('.calendar-cell').forEach(c => c.classList.remove('active'));
+      cell.classList.add('active');
+      renderDayTimeline();
+    });
+    
+    calendarGrid.appendChild(cell);
+  }
+  
+  renderDayTimeline();
+  renderCommandRail();
+}
+
+function renderDayTimeline() {
+  const displayDate = new Date(selectedDateStr);
+  selectedDayTitle.textContent = `Schedule: ${displayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}`;
+  timelineList.innerHTML = '';
+  
+  const dayEvents = state.schedule.filter(s => s.date === selectedDateStr).sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+  
+  if(dayEvents.length === 0) {
+    timelineList.innerHTML = `<p class="empty-note">No plans scheduled for this day.</p>`;
+    return;
+  }
+  
+  dayEvents.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'timeline-row';
+    row.innerHTML = `
+      <span class="timeline-time">${item.time ? formatTime12(item.time) : 'All day'}</span>
+      <span class="timeline-text">${escapeHtml(item.text)}</span>
+      <button class="timeline-remove" data-id="${item.id}">remove</button>
+    `;
+    row.querySelector('.timeline-remove').addEventListener('click', () => {
+      state.schedule = state.schedule.filter(s => s.id !== item.id);
+      saveState();
+      renderCalendar();
+      renderCommandRail();
+    });
+    timelineList.appendChild(row);
+  });
+}
+
+scheduleForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const time = document.getElementById('scheduleTime').value;
+  const text = document.getElementById('scheduleText').value.trim();
+  if(!text) return;
+  
+  state.schedule.push({ id: uid(), date: selectedDateStr, time, text });
+  saveState();
+  document.getElementById('scheduleText').value = '';
+  document.getElementById('scheduleTime').value = '';
+  renderCalendar();
+  renderCommandRail();
+});
+
+/* ============================================================
+   PROGRESS DESIGN COMPONENT (UPDATED FOR INDIVIDUAL DAY WORKOUT)
+   ============================================================ */
+const DIAL_CIRCUMFERENCE = 2 * Math.PI * 86;
+
+function renderProgress(){
+  let totalItems = 0;
+  let doneItems = 0;
+  const breakdownEl = document.getElementById('progressBreakdown');
+  breakdownEl.innerHTML = '';
+  
+  const todayDayIndex = new Date().getDay(); // 오늘 요일 (0-6)
+
+  Object.entries(state.routines).forEach(([category, items]) => {
+    let catTotal = items.length;
+    let catDone = items.filter(i => i.done).length;
+    
+    // 특수 필터: 운동 카테고리인 경우 대시보드에서는 오직 오늘 요일 일정만 계산에 합산
+    if(category === "운동") {
+      const todayWorkout = items.find(i => i.dayIndex === todayDayIndex);
+      catTotal = todayWorkout ? 1 : 0;
+      catDone = (todayWorkout && todayWorkout.done) ? 1 : 0;
+    }
+    
+    totalItems += catTotal;
+    doneItems += catDone;
+
+    const pct = catTotal === 0 ? 0 : Math.round((catDone / catTotal) * 100);
+
+    const row = document.createElement('div');
+    row.className = 'breakdown-row';
+    row.innerHTML = `
+      <div class="breakdown-label-row">
+        <span class="breakdown-label">${escapeHtml(category)} ${category === "운동" ? "(Today)" : ""}</span>
+        <span class="breakdown-count">${catDone}/${catTotal}</span>
+      </div>
+      <div class="breakdown-track">
+        <div class="breakdown-fill" style="width:${pct}%"></div>
+      </div>
+    `;
+    breakdownEl.appendChild(row);
+  });
+
+  const overallPct = totalItems === 0 ? 0 : Math.round((doneItems / totalItems) * 100);
+
+  document.getElementById('progressFraction').textContent = `${doneItems} / ${totalItems}`;
+  document.getElementById('dialPercent').textContent = `${overallPct}%`;
+
+  const offset = DIAL_CIRCUMFERENCE - (overallPct / 100) * DIAL_CIRCUMFERENCE;
+  document.getElementById('dialProgress').style.strokeDashoffset = offset;
+
+  document.getElementById('sidebarPercent').textContent = `${overallPct}%`;
+  document.getElementById('sidebarBar').style.width = `${overallPct}%`;
+  renderCommandRail();
+}
+
+/* ============================================================
+   ROUTINES GENERATOR WITH DAY TABS BY WORKOUT
+   ============================================================ */
+const routineCategoriesEl = document.getElementById('routineCategories');
+
+function renderRoutines(){
+  routineCategoriesEl.innerHTML = '';
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  const todayDayIndex = new Date().getDay();
+
+  Object.entries(state.routines).forEach(([category, items]) => {
+    const card = document.createElement('div');
+    card.className = 'routine-category';
+    
+    if (category === "운동") {
+      // 운동 탭 시스템 빌드
+      let tabsHtml = '<div class="workout-tabs">';
+      dayNames.forEach((name, idx) => {
+        const isActive = idx === activeWorkoutDayTab ? 'active' : '';
+        const isToday = idx === todayDayIndex ? 'today-highlight' : '';
+        tabsHtml += `<button class="workout-tab-btn ${isActive} ${isToday}" onclick="switchWorkoutTab(${idx})">${name}</button>`;
+      });
+      tabsHtml += '</div>';
+
+      card.innerHTML = `
+        <div class="routine-category-head">
+          <span class="routine-category-title">${escapeHtml(category)} 루틴 관리</span>
+        </div>
+        ${tabsHtml}
+        <ul class="check-list"></ul>
+        <form class="routine-add-form">
+          <input type="text" placeholder="${dayNames[activeWorkoutDayTab]}요일 운동 추가...">
+          <button type="submit" class="solid-btn">Add</button>
+        </form>
+      `;
+
+      // 선택한 요일의 운동만 필터링하여 노출
+      const ul = card.querySelector('ul');
+      const filteredItems = items.filter(i => i.dayIndex === activeWorkoutDayTab);
+      
+      if(filteredItems.length === 0) {
+        ul.innerHTML = `<p class="empty-note" style="padding:10px 0;">지정된 운동이 없습니다. 하단에서 생성해보세요.</p>`;
+      }
+
+      filteredItems.forEach(item => {
+        const li = document.createElement('li');
+        li.className = `check-item ${item.done ? 'done' : ''}`;
+        li.innerHTML = `
+          <button class="check-box ${item.done ? 'checked' : ''}"></button>
+          <span class="check-label">${escapeHtml(item.text)}</span>
+          <button class="check-remove">remove</button>
+        `;
+        li.querySelector('.check-box').addEventListener('click', () => toggleRoutine(category, item.id));
+        li.querySelector('.check-remove').addEventListener('click', () => removeRoutine(category, item.id));
+        ul.appendChild(li);
+      });
+
+      const form = card.querySelector('form');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = form.querySelector('input');
+        const text = input.value.trim();
+        if(!text) return;
+        state.routines[category].push({ id: uid(), text: text, done: false, dayIndex: activeWorkoutDayTab });
+        saveState();
+        input.value = '';
+        renderRoutines();
+        renderProgress();
+      });
+
+    } else {
+      // 일반 카테고리 빌드
+      const doneCount = items.filter(i => i.done).length;
+      card.innerHTML = `
+        <div class="routine-category-head">
+          <span class="routine-category-title">${escapeHtml(category)}</span>
+          <span class="check-meta">${doneCount}/${items.length}</span>
+        </div>
+        <ul class="check-list"></ul>
+        <form class="routine-add-form">
+          <input type="text" placeholder="Add an item to ${escapeHtml(category)}...">
+          <button type="submit" class="solid-btn">Add</button>
+        </form>
+      `;
+
+      const ul = card.querySelector('ul');
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.className = `check-item ${item.done ? 'done' : ''}`;
+        li.innerHTML = `
+          <button class="check-box ${item.done ? 'checked' : ''}"></button>
+          <span class="check-label">${escapeHtml(item.text)}</span>
+          <button class="check-remove">remove</button>
+        `;
+        li.querySelector('.check-box').addEventListener('click', () => toggleRoutine(category, item.id));
+        li.querySelector('.check-remove').addEventListener('click', () => removeRoutine(category, item.id));
+        ul.appendChild(li);
+      });
+
+      const form = card.querySelector('form');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = form.querySelector('input');
+        const text = input.value.trim();
+        if(!text) return;
+        state.routines[category].push({ id: uid(), text, done: false });
+        saveState();
+        input.value = '';
+        renderRoutines();
+        renderProgress();
+      });
+    }
+
+    routineCategoriesEl.appendChild(card);
+  });
+}
+
+function switchWorkoutTab(dayIndex) {
+  activeWorkoutDayTab = dayIndex;
+  renderRoutines();
+  renderCommandRail();
+}
+
+function toggleRoutine(category, id){
+  const item = state.routines[category].find(i => i.id === id);
+  if(!item) return;
+  item.done = !item.done;
+  saveState();
+  renderRoutines();
+  renderProgress();
+  renderCommandRail();
+}
+
+function removeRoutine(category, id){
+  state.routines[category] = state.routines[category].filter(i => i.id !== id);
+  saveState();
+  renderRoutines();
+  renderProgress();
+  renderCommandRail();
+}
+
+/* ============================================================
+   QUOTES & GOALS INITIAL FILLERS
+   ============================================================ */
+let currentQuoteIndex = 0;
+function renderQuote(){
+  const q = state.quotes[currentQuoteIndex];
+  const textEl = document.getElementById('quoteText');
+  textEl.textContent = `"${q.text}"`;
+  document.getElementById('quoteAuthor').textContent = q.author ? `— ${q.author}` : '';
+  textEl.classList.remove('slide-anim');
+  void textEl.offsetWidth; // reflow to restart animation
+  textEl.classList.add('slide-anim');
+}
+function pickRandomQuote(){
+  if(state.quotes.length <= 1) currentQuoteIndex = 0;
+  else {
+    let next;
+    do { next = Math.floor(Math.random() * state.quotes.length); } while(next === currentQuoteIndex);
+    currentQuoteIndex = next;
+  }
+  renderQuote();
+}
+pickRandomQuote();
+document.getElementById('newQuoteBtn').addEventListener('click', pickRandomQuote);
+setInterval(pickRandomQuote, 8000);
+const addQuoteForm = document.getElementById('addQuoteForm');
+document.getElementById('addQuoteBtn').addEventListener('click', () => addQuoteForm.classList.toggle('hidden'));
+document.getElementById('saveQuoteBtn').addEventListener('click', () => {
+  const text = document.getElementById('newQuoteText').value.trim();
+  const author = document.getElementById('newQuoteAuthor').value.trim();
+  if(!text) return;
+  state.quotes.push({ text, author });
+  saveState();
+  document.getElementById('newQuoteText').value = '';
+  document.getElementById('newQuoteAuthor').value = '';
+  addQuoteForm.classList.add('hidden');
+  currentQuoteIndex = state.quotes.length - 1;
+  renderQuote();
+});
+
+const weeklyGoalEl = document.getElementById('weeklyGoal');
+const monthlyGoalEl = document.getElementById('monthlyGoal');
+weeklyGoalEl.value = state.weeklyGoal;
+monthlyGoalEl.value = state.monthlyGoal;
+weeklyGoalEl.addEventListener('input', () => { state.weeklyGoal = weeklyGoalEl.value; saveState(); });
+monthlyGoalEl.addEventListener('input', () => { state.monthlyGoal = monthlyGoalEl.value; saveState(); });
+
+/* ============================================================
+   TODOS COMPONENT
+   ============================================================ */
+const todoForm = document.getElementById('todoForm');
+const todoList = document.getElementById('todoList');
+const todoHistory = document.getElementById('todoHistory');
+const historyToggle = document.getElementById('historyToggle');
+
+function renderTodos(){
+  todoList.innerHTML = ''; todoHistory.innerHTML = '';
+  const active = state.todos.filter(t => !t.done);
+  const done = state.todos.filter(t => t.done);
+  if(active.length === 0) todoList.innerHTML = `<p class="empty-note">Nothing queued for today.</p>`;
+  else active.forEach(todo => todoList.appendChild(buildTodoItem(todo)));
+  if(done.length === 0) todoHistory.innerHTML = `<p class="empty-note">No completed tasks yet.</p>`;
+  else done.sort((a,b) => (b.completedAt || 0) - (a.completedAt || 0)).forEach(todo => todoHistory.appendChild(buildTodoItem(todo, true)));
+  renderCommandRail();
+}
+
+function buildTodoItem(todo, isHistory = false){
+  const li = document.createElement('li');
+  li.className = `check-item ${todo.done ? 'done' : ''}`;
+  const dateLabel = todo.completedAt ? new Date(todo.completedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
+  li.innerHTML = `
+    <button class="check-box ${todo.done ? 'checked' : ''}"></button>
+    <span class="check-label">${escapeHtml(todo.text)}${isHistory ? `<span class="check-meta">${dateLabel}</span>` : ''}</span>
+    <button class="check-remove">remove</button>
+  `;
+  li.querySelector('.check-box').addEventListener('click', () => {
+    todo.done = !todo.done;
+    todo.completedAt = todo.done ? Date.now() : null;
+    saveState(); renderTodos(); renderProgress();
+  });
+  li.querySelector('.check-remove').addEventListener('click', () => {
+    state.todos = state.todos.filter(t => t.id !== todo.id);
+    saveState(); renderTodos(); renderProgress();
+  });
+  return li;
+}
+
+todoForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = document.getElementById('todoText');
+  const text = input.value.trim();
+  if(!text) return;
+  state.todos.push({ id: uid(), text, done: false, completedAt: null });
+  saveState(); input.value = ''; renderTodos(); renderCommandRail();
+});
+
+historyToggle.addEventListener('click', () => {
+  const willShow = todoHistory.classList.contains('hidden');
+  todoHistory.classList.toggle('hidden');
+  historyToggle.textContent = willShow ? 'Hide completed history ▴' : 'View completed history ▾';
+});
+
+
+/* ============================================================
+   04 GYM ROUTINE COMPONENT
+   ============================================================ */
+const gymDayTabs = document.getElementById('gymDayTabs');
+const gymDayNote = document.getElementById('gymDayNote');
+const gymSummary = document.getElementById('gymSummary');
+const gymList = document.getElementById('gymList');
+const JAVELIN_DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+let activeGymDay = new Date().getDay();
+
+function localDateKey(date = new Date()){
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function gymCompletionKey(dayIndex = activeGymDay){
+  return `${localDateKey()}:${dayIndex}`;
+}
+
+function getGymDoneSet(dayIndex = activeGymDay){
+  if(!state.gymCompletions) state.gymCompletions = {};
+  return new Set(state.gymCompletions[gymCompletionKey(dayIndex)] || []);
+}
+
+function saveGymDoneSet(doneSet, dayIndex = activeGymDay){
+  if(!state.gymCompletions) state.gymCompletions = {};
+  state.gymCompletions[gymCompletionKey(dayIndex)] = Array.from(doneSet);
+  saveState();
+}
+
+function renderGymRoutine() {
+  const todayIndex = new Date().getDay();
+  const program = JAVELIN_PROGRAM[activeGymDay];
+  const doneSet = getGymDoneSet(activeGymDay);
+  const doneCount = program.items.filter(item => doneSet.has(item.id)).length;
+  const pct = program.items.length ? Math.round((doneCount / program.items.length) * 100) : 0;
+
+  gymDayTabs.innerHTML = JAVELIN_DAY_NAMES.map((day, idx) => `
+    <button class="workout-tab-btn ${idx === activeGymDay ? 'active' : ''} ${idx === todayIndex ? 'today-highlight' : ''}" type="button" data-day="${idx}">${day.slice(0,3)}</button>
+  `).join('');
+
+  gymDayTabs.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeGymDay = Number(btn.dataset.day);
+      renderGymRoutine();
+    });
+  });
+
+  gymDayNote.textContent = `${JAVELIN_DAY_NAMES[activeGymDay]} - ${program.focus}`;
+  gymSummary.innerHTML = `
+    <div class="gym-focus-card gym-accent-${program.accent}">
+      <div>
+        <span class="gym-kicker">${program.badge}</span>
+        <h3>${program.focus}</h3>
+      </div>
+      <div class="gym-progress-pill">${doneCount}/${program.items.length} done</div>
+    </div>
+    <div class="gym-progress-track"><div class="gym-progress-fill" style="width:${pct}%"></div></div>
+  `;
+
+  gymList.innerHTML = '';
+  program.items.forEach((item, index) => {
+    const done = doneSet.has(item.id);
+    const li = document.createElement('li');
+    li.className = `check-item javelin-item ${done ? 'done' : ''}`;
+    li.innerHTML = `
+      <button class="check-box ${done ? 'checked' : ''}" type="button"></button>
+      <span class="check-label">
+        <span class="javelin-exercise-head"><strong>${index + 1}. ${escapeHtml(item.name)}</strong><span>${escapeHtml(item.sets)}</span></span>
+        <span class="javelin-note">${escapeHtml(item.note)}</span>
+      </span>
+    `;
+
+    li.querySelector('.check-box').addEventListener('click', () => {
+      const updated = getGymDoneSet(activeGymDay);
+      if(updated.has(item.id)) updated.delete(item.id);
+      else updated.add(item.id);
+      saveGymDoneSet(updated, activeGymDay);
+      renderGymRoutine();
+    });
+
+    gymList.appendChild(li);
+  });
+  renderCommandRail();
+}
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+renderCalendar();
+renderTodos();
+renderRoutines();
+renderProgress();
+renderGymRoutine(); // 첫 페이지 로드 시 운동 데이터 갱신 기능 활성화
+
+
+/* ============================================================
+   WEATHER WIDGET (Winchester, MA)
+   ============================================================ */
+const WINCHESTER_LAT = 42.4526;
+const WINCHESTER_LON = -71.1376;
+const weatherBody = document.getElementById('weatherBody');
+const weatherTabs = document.querySelectorAll('.weather-tab-btn');
+let weatherData = null;
+let activeWeatherRange = 'daily';
+
+const weatherWidget = document.getElementById('weatherWidget');
+const weatherBackdrop = document.getElementById('weatherBackdrop');
+const weatherClose = document.getElementById('weatherClose');
+
+function openWeatherPanel(){
+  weatherWidget.classList.add('expanded');
+  document.body.classList.add('weather-open');
+  weatherWidget.setAttribute('aria-expanded', 'true');
+}
+
+function closeWeatherPanel(){
+  weatherWidget.classList.remove('expanded');
+  document.body.classList.remove('weather-open');
+  weatherWidget.setAttribute('aria-expanded', 'false');
+}
+
+weatherWidget.addEventListener('click', (e) => {
+  if(e.target.closest('.weather-close') || e.target.closest('.weather-tab-btn')) return;
+  openWeatherPanel();
+});
+weatherWidget.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openWeatherPanel(); }
+  if(e.key === 'Escape') closeWeatherPanel();
+});
+weatherClose.addEventListener('click', (e) => { e.stopPropagation(); closeWeatherPanel(); });
+weatherBackdrop.addEventListener('click', closeWeatherPanel);
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeWeatherPanel(); });
+const WMO_DESCRIPTIONS = {
+  0: 'Clear sky', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast',
+  45: 'Fog', 48: 'Freezing fog',
+  51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle',
+  56: 'Freezing drizzle', 57: 'Freezing drizzle',
+  61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
+  66: 'Freezing rain', 67: 'Freezing rain',
+  71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
+  80: 'Light showers', 81: 'Showers', 82: 'Violent showers',
+  85: 'Snow showers', 86: 'Heavy snow showers',
+  95: 'Thunderstorm', 96: 'Thunderstorm w/ hail', 99: 'Thunderstorm w/ hail'
+};
+function weatherDesc(code){ return WMO_DESCRIPTIONS[code] || 'Unknown'; }
+
+async function fetchWeather(){
+  try{
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${WINCHESTER_LAT}&longitude=${WINCHESTER_LON}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=America%2FNew_York&forecast_days=16`;
+    const res = await fetch(url);
+    weatherData = await res.json();
+    renderWeather();
+  }catch(e){
+    weatherBody.innerHTML = `<div class="weather-loading">Weather unavailable</div>`;
+  }
+}
+
+function renderWeather(){
+  if(!weatherData){ return; }
+  if(activeWeatherRange === 'daily') renderWeatherDaily();
+  else if(activeWeatherRange === 'weekly') renderWeatherWeekly();
+  else renderWeatherMonthly();
+}
+
+function renderWeatherDaily(){
+  const cur = weatherData.current;
+  const today = weatherData.daily;
+  weatherBody.innerHTML = `
+    <div class="weather-now">
+      <span class="weather-temp">${Math.round(cur.temperature_2m)}°F</span>
+      <span class="weather-desc">${weatherDesc(cur.weather_code)}<br>H:${Math.round(today.temperature_2m_max[0])}° L:${Math.round(today.temperature_2m_min[0])}°</span>
+    </div>
+  `;
+}
+
+function renderWeatherWeekly(){
+  const d = weatherData.daily;
+  const rows = [];
+  for(let i = 0; i < Math.min(7, d.time.length); i++){
+    const date = new Date(d.time[i] + 'T00:00:00');
+    const label = i === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
+    rows.push(`
+      <div class="weather-row">
+        <span class="weather-row-label">${label}</span>
+        <span class="weather-row-temp">${weatherDesc(d.weather_code[i])} · ${Math.round(d.temperature_2m_max[i])}°/${Math.round(d.temperature_2m_min[i])}°</span>
+      </div>
+    `);
+  }
+  weatherBody.innerHTML = `<div class="weather-list">${rows.join('')}</div>`;
+}
+
+function renderWeatherMonthly(){
+  const d = weatherData.daily;
+  // Open-Meteo free tier provides up to 16 days; show available days grouped weekly
+  const rows = [];
+  const len = d.time.length;
+  for(let i = 0; i < len; i += 7){
+    const slice = d.time.slice(i, Math.min(i+7, len));
+    const maxes = d.temperature_2m_max.slice(i, Math.min(i+7, len));
+    const mins = d.temperature_2m_min.slice(i, Math.min(i+7, len));
+    const avgMax = Math.round(maxes.reduce((a,b)=>a+b,0) / maxes.length);
+    const avgMin = Math.round(mins.reduce((a,b)=>a+b,0) / mins.length);
+    const startDate = new Date(slice[0] + 'T00:00:00');
+    const endDate = new Date(slice[slice.length-1] + 'T00:00:00');
+    const label = `${startDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})} - ${endDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+    rows.push(`
+      <div class="weather-row">
+        <span class="weather-row-label">${label}</span>
+        <span class="weather-row-temp">Avg ${avgMax}°/${avgMin}°</span>
+      </div>
+    `);
+  }
+  weatherBody.innerHTML = `<div class="weather-list">${rows.join('')}</div><div class="weather-loading" style="padding-top:6px;">16-day forecast (avg)</div>`;
+}
+
+weatherTabs.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    weatherTabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeWeatherRange = btn.dataset.range;
+    renderWeather();
+    openWeatherPanel();
+  });
+});
+
+fetchWeather();
+setInterval(fetchWeather, 30 * 60 * 1000); // refresh every 30 min
+</script>
+</body>
+</html>
+
