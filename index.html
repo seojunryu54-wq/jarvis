@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -20,9 +20,6 @@
   --signal: #ff5d3a;
   --signal-dim: rgba(255,93,58,.14);
   --signal-soft: rgba(255,93,58,.35);
-  --glow: rgba(255,93,58,.22);
-  --glow-strong: rgba(255,93,58,.42);
-  --cool-glow: rgba(112,174,224,.16);
 
   --font-display: 'Fraunces', serif;
   --font-body: 'Space Grotesk', sans-serif;
@@ -32,10 +29,7 @@
 *{ box-sizing: border-box; margin:0; padding:0; }
 html, body{ height: 100%; }
 body{
-  background:
-    linear-gradient(135deg, rgba(255,93,58,.08), transparent 28%),
-    linear-gradient(215deg, rgba(112,174,224,.07), transparent 34%),
-    var(--ink);
+  background: var(--ink);
   color: var(--paper);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -47,26 +41,22 @@ body{
 .app{ display: flex; min-height: 100vh; }
 
 .sidebar{
-  width: 264px; flex-shrink: 0; background: rgba(21,21,28,.92); border-right: 1px solid rgba(255,93,58,.16);
+  width: 264px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--line);
   display: flex; flex-direction: column; justify-content: space-between; padding: 28px 22px;
-  position: sticky; top: 0; height: 100vh;
-  box-shadow: 18px 0 48px rgba(0,0,0,.28), inset -1px 0 0 rgba(255,255,255,.03);
-  z-index: 20;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
 }
-body.weather-open .sidebar{ z-index: 5000; }
 .sidebar-top{ display: flex; flex-direction: column; gap: 28px; }
 .brand{ display: flex; align-items: center; gap: 12px; }
 .brand-mark{
   width: 38px; height: 38px; flex-shrink: 0; border-radius: 8px; background: var(--signal);
   color: var(--ink); font-family: var(--font-display); font-weight: 600; font-size: 20px;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 24px var(--glow-strong);
 }
 .brand-text{ display: flex; flex-direction: column; line-height: 1.25; }
 .brand-name{ font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.18em; }
 .brand-sub{ font-size: 11px; color: var(--paper-dim); letter-spacing: 0.02em; }
 
-.date-readout{ border: 1px solid rgba(255,93,58,.18); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; background: rgba(28,28,37,.86); box-shadow: 0 0 22px rgba(255,93,58,.08); }
+.date-readout{ border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; background: var(--panel-2); }
 .date-label{ font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; color: var(--paper-dim); }
 .date-value{ font-family: var(--font-display); font-size: 19px; font-weight: 500; }
 
@@ -76,23 +66,21 @@ body.weather-open .sidebar{ z-index: 5000; }
   border: 1px solid transparent; border-radius: 10px; padding: 13px 14px; cursor: pointer; color: var(--paper-dim);
   font-family: var(--font-body); font-size: 14.5px; font-weight: 500; transition: all .15s ease;
 }
-.nav-item:hover{ background: rgba(28,28,37,.9); color: var(--paper); border-color: rgba(255,255,255,.06); box-shadow: 0 0 18px rgba(255,93,58,.08); }
-.nav-item.active{ background: var(--signal-dim); border-color: var(--signal-soft); color: var(--paper); box-shadow: 0 0 24px var(--glow), inset 0 0 18px rgba(255,93,58,.06); }
+.nav-item:hover{ background: var(--panel-2); color: var(--paper); }
+.nav-item.active{ background: var(--signal-dim); border-color: var(--signal-soft); color: var(--paper); }
 .nav-index{ font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); letter-spacing: 0.05em; }
 .nav-item.active .nav-index{ color: var(--signal); }
 
 .sidebar-bottom{ display: flex; flex-direction: column; gap: 10px; }
 
 /* WEATHER WIDGET */
-.weather-widget{ border: 1px solid rgba(255,93,58,.18); border-radius: 10px; padding: 14px 16px; background: rgba(28,28,37,.9); display: flex; flex-direction: column; gap: 10px; box-shadow: 0 0 26px rgba(255,93,58,.1); }
+.weather-widget{ border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--panel-2); display: flex; flex-direction: column; gap: 10px; }
 .weather-loc{ font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; color: var(--paper-dim); text-transform: uppercase; }
 .weather-tabs{ display: flex; gap: 4px; }
-.weather-widget.expanded .weather-tabs{ position: relative; z-index: 5002; }
 .weather-tab-btn{ flex: 1; background: transparent; border: 1px solid var(--line); color: var(--paper-dim); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em; padding: 4px 6px; border-radius: 6px; cursor: pointer; transition: all .15s ease; text-transform: uppercase; }
-.weather-tab-btn:hover{ color: var(--paper); border-color: var(--signal-soft); box-shadow: 0 0 14px rgba(255,93,58,.12); }
-.weather-tab-btn.active{ color: var(--ink); background: var(--signal); border-color: var(--signal); font-weight: 600; box-shadow: 0 0 18px var(--glow-strong); }
+.weather-tab-btn:hover{ color: var(--paper); border-color: var(--signal-soft); }
+.weather-tab-btn.active{ color: var(--ink); background: var(--signal); border-color: var(--signal); font-weight: 600; }
 .weather-body{ display: flex; flex-direction: column; gap: 6px; }
-.weather-body.swapping{ animation: softSwap .24s ease; }
 .weather-now{ display: flex; align-items: center; justify-content: space-between; }
 .weather-temp{ font-family: var(--font-display); font-size: 28px; font-weight: 500; }
 .weather-desc{ font-size: 11px; color: var(--paper-dim); text-align: right; }
@@ -102,68 +90,21 @@ body.weather-open .sidebar{ z-index: 5000; }
 .weather-row-label{ color: var(--paper); font-family: var(--font-mono); font-size: 10.5px; }
 .weather-row-temp{ font-family: var(--font-mono); color: var(--paper-dim); font-size: 10.5px; }
 .weather-loading{ font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); text-align: center; padding: 8px 0; }
-.weather-widget{ cursor: pointer; position: relative; transform-origin: center; }
-.weather-widget.expanded{
-  position: fixed; top: 50%; left: 50%; width: min(640px, calc(100vw - 32px));
-  max-height: min(680px, calc(100vh - 48px)); transform: translate(-50%, -50%);
-  z-index: 5001; padding: 24px; border-color: rgba(255,93,58,.76); background: rgba(28,28,37,.98);
-  box-shadow: 0 24px 70px rgba(0,0,0,.34), 0 0 54px var(--glow-strong), inset 0 0 28px rgba(255,255,255,.035);
-  gap: 16px; cursor: default; overflow: auto; animation: weatherExpand .28s cubic-bezier(.2,.8,.2,1);
-  pointer-events: auto;
-}
-@keyframes weatherExpand{ from{ opacity:.35; transform: translate(-50%, -50%) scale(.82); } to{ opacity:1; transform: translate(-50%, -50%) scale(1); } }
-.weather-widget.expanded .weather-loc{ font-size: 12px; color: var(--signal); text-shadow: 0 0 12px rgba(255,93,58,.35); }
-.weather-widget.expanded .weather-tab-btn{ padding: 8px 10px; font-size: 11px; cursor: pointer; }
-.weather-widget.expanded .weather-temp{ font-size: 54px; }
-.weather-widget.expanded .weather-desc{ font-size: 14px; line-height: 1.5; color: var(--paper); }
-.weather-widget.expanded .weather-row{ padding: 10px 0; font-size: 13px; }
-.weather-widget.expanded .weather-row-label, .weather-widget.expanded .weather-row-temp{ font-size: 12px; color: var(--paper); }
-.weather-close{ display:none; position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:8px; border:1px solid var(--line); background:transparent; color:var(--paper-dim); font-family:var(--font-mono); cursor:pointer; }
-.weather-close:hover{ color:var(--paper); border-color:var(--signal-soft); }
-.weather-widget.expanded .weather-close{ display:flex; align-items:center; justify-content:center; }
-.weather-backdrop{ position:fixed; inset:0; background:radial-gradient(circle at 55% 45%, rgba(255,93,58,.16), rgba(12,12,16,.2) 42%, rgba(12,12,16,.34)); opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:2000; }
-body.weather-open .weather-backdrop{ opacity:1; pointer-events:auto; }
 .streak-readout{ display: flex; justify-content: space-between; align-items: baseline; }
 .streak-label{ font-size: 12px; color: var(--paper-dim); }
 .streak-value{ font-family: var(--font-mono); font-size: 16px; font-weight: 600; color: var(--signal); }
 .streak-track{ height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
 .streak-fill{ height: 100%; background: var(--signal); border-radius: 2px; transition: width .4s ease; }
 
-.content-shell{ flex: 1; display: grid; grid-template-columns: minmax(0, 960px) minmax(280px, 360px); gap: 28px; align-items: start; padding: 48px 56px 80px; max-width: 1440px; width: 100%; }
-.main{ min-width: 0; }
-.view{ display: none; opacity: 0; transform: translateY(12px); }
-.view.active{ display: block; opacity: 1; transform: translateY(0); animation: tabIn .42s cubic-bezier(.2,.8,.2,1); }
-.view.leaving{ display: block; position: absolute; inset: 0; pointer-events: none; animation: tabOut .24s ease forwards; }
-.main.transitioning{ position: relative; min-height: 520px; }
-@keyframes tabIn{ from{ opacity: 0; transform: translateY(14px) scale(.992); filter: blur(3px); } to{ opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
-@keyframes tabOut{ from{ opacity: 1; transform: translateY(0); filter: blur(0); } to{ opacity: 0; transform: translateY(-8px); filter: blur(2px); } }
+.main{ flex: 1; padding: 48px 56px 80px; max-width: 920px; }
+.view{ display: none; }
+.view.active{ display: block; animation: fadeUp .35s ease; }
+@keyframes fadeUp{ from{ opacity: 0; transform: translateY(10px); } to{ opacity: 1; transform: translateY(0); } }
 
 .view-head{ margin-bottom: 36px; display: flex; flex-direction: column; gap: 8px; }
 .view-eyebrow{ font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; color: var(--signal); }
 .view-title{ font-family: var(--font-display); font-size: 42px; font-weight: 500; letter-spacing: -0.01em; }
 .block-title{ font-family: var(--font-display); font-size: 19px; font-weight: 500; }
-
-.command-rail{ position: sticky; top: 28px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-.rail-card{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 18px 20px; box-shadow: 0 0 30px rgba(255,93,58,.08), inset 0 0 18px rgba(255,255,255,.025); }
-.rail-card.compact{ padding: 16px 18px; }
-.rail-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:12px; }
-.rail-title{ font-family:var(--font-mono); color:var(--signal); font-size:10px; letter-spacing:.2em; text-transform:uppercase; }
-.rail-value{ font-family:var(--font-display); font-size:24px; line-height:1; }
-.rail-list{ display:flex; flex-direction:column; gap:10px; }
-.rail-row{ display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(255,255,255,.06); padding-bottom:9px; font-size:12.5px; line-height:1.35; }
-.rail-row:last-child{ border-bottom:none; padding-bottom:0; }
-.rail-row strong{ color:var(--paper); font-weight:600; }
-.rail-row span{ color:var(--paper-dim); font-family:var(--font-mono); font-size:11px; white-space:nowrap; }
-.rail-empty{ color:var(--paper-dim); font-family:var(--font-mono); font-size:12px; line-height:1.45; }
-.rail-note{ width:100%; min-height:94px; resize:vertical; }
-.rail-actions{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
-.mode-toggle{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid var(--line); background:rgba(28,28,37,.82); color:var(--paper); border-radius:10px; padding:12px 14px; cursor:pointer; font-family:var(--font-body); transition:all .18s ease; }
-.mode-toggle:hover, .mode-toggle.active{ border-color:var(--signal-soft); box-shadow:0 0 22px rgba(255,93,58,.14); }
-.mode-pill{ width:38px; height:20px; border-radius:999px; background:var(--line); position:relative; flex-shrink:0; transition:background .18s ease; }
-.mode-pill::after{ content:''; position:absolute; top:3px; left:3px; width:14px; height:14px; border-radius:50%; background:var(--paper-dim); transition:transform .18s ease, background .18s ease; }
-.mode-toggle.active .mode-pill{ background:var(--signal-dim); }
-.mode-toggle.active .mode-pill::after{ transform:translateX(18px); background:var(--signal); box-shadow:0 0 14px var(--glow-strong); }
-body.focus-mode .quote-block, body.focus-mode .goals-block, body.focus-mode .command-rail .rail-card:not(.focus-keep){ opacity:.45; }
 
 /* ============================================================
    NEW: OBJECTIVE TOP POPUP
@@ -181,13 +122,13 @@ body.focus-mode .quote-block, body.focus-mode .goals-block, body.focus-mode .com
 /* ============================================================
    NEW: CALENDAR SCHEDULE COMPONENT
    ============================================================ */
-.calendar-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(21,21,28,.9); padding: 14px 20px; border: 1px solid rgba(255,93,58,.14); border-radius: 12px; box-shadow: 0 0 24px rgba(255,93,58,.07); }
+.calendar-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 14px 20px; border: 1px solid var(--line); border-radius: 12px; }
 .calendar-title { font-family: var(--font-display); font-size: 22px; font-weight: 500; }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 28px; }
 .calendar-day-label { font-family: var(--font-mono); font-size: 11px; text-align: center; color: var(--paper-dim); padding-bottom: 6px; text-transform: uppercase; letter-spacing: 0.1em; }
 .calendar-cell { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-height: 85px; padding: 8px; cursor: pointer; transition: all .15s ease; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
-.calendar-cell:hover { border-color: var(--signal-soft); background: var(--panel-2); box-shadow: 0 0 18px rgba(255,93,58,.1); }
-.calendar-cell.active { border-color: var(--signal); background: var(--panel-2); box-shadow: 0 0 22px rgba(255,93,58,.16), inset 0 0 12px rgba(255,93,58,0.12); }
+.calendar-cell:hover { border-color: var(--signal-soft); background: var(--panel-2); }
+.calendar-cell.active { border-color: var(--signal); background: var(--panel-2); box-shadow: inset 0 0 8px rgba(255,93,58,0.1); }
 .calendar-cell.today { border: 1px solid var(--paper); }
 .calendar-cell.other-month { opacity: 0.3; }
 .day-num { font-family: var(--font-mono); font-size: 12px; color: var(--paper-dim); }
@@ -203,13 +144,11 @@ body.focus-mode .quote-block, body.focus-mode .goals-block, body.focus-mode .com
 .workout-tab-btn:hover { color: var(--paper); background: var(--panel-2); }
 .workout-tab-btn.active { color: var(--ink); background: var(--signal); font-weight: 600; }
 .workout-tab-btn.today-highlight { border-color: var(--signal-soft); }
-.javelin-list.swapping, .routine-categories.swapping{ animation: softSwap .24s ease; }
-@keyframes softSwap{ from{ opacity:.45; transform:translateY(5px); } to{ opacity:1; transform:translateY(0); } }
 
 /* ============================================================
    EXISTING COMPONENTS STYLES REUSED
    ============================================================ */
-.quote-block{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 32px 36px; margin-bottom: 28px; position: relative; overflow: hidden; box-shadow: 0 0 34px rgba(255,93,58,.08), inset 0 0 20px rgba(255,255,255,.025); }
+.quote-block{ background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 32px 36px; margin-bottom: 28px; position: relative; overflow: hidden; }
 .quote-block::before{ content: '"'; position: absolute; top: -38px; left: 18px; font-family: var(--font-display); font-size: 160px; color: var(--signal); opacity: 0.08; line-height: 1; }
 .quote-text{ font-family: var(--font-display); font-size: 24px; font-weight: 400; line-height: 1.5; position: relative; z-index: 1; }
 .quote-text.slide-anim{ animation: quoteSlideIn .6s ease; }
@@ -225,7 +164,7 @@ body.focus-mode .quote-block, body.focus-mode .goals-block, body.focus-mode .com
 .add-quote-form{ margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; gap: 10px; flex-wrap: wrap; }
 .add-quote-form input{ flex: 1; min-width: 160px; }
 
-.progress-block{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 32px 36px; margin-bottom: 28px; box-shadow: 0 0 34px rgba(255,93,58,.08), inset 0 0 20px rgba(255,255,255,.025); }
+.progress-block{ background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 32px 36px; margin-bottom: 28px; }
 .progress-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; }
 .progress-fraction{ font-family: var(--font-mono); font-size: 14px; color: var(--paper-dim); }
 .progress-dial-row{ display: flex; gap: 40px; align-items: center; flex-wrap: wrap; }
@@ -245,7 +184,7 @@ body.focus-mode .quote-block, body.focus-mode .goals-block, body.focus-mode .com
 .breakdown-fill{ height: 100%; background: var(--signal); border-radius: 3px; transition: width .4s ease; }
 
 .goals-block{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.goal-card{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 26px 28px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 0 28px rgba(255,93,58,.07); }
+.goal-card{ background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 26px 28px; display: flex; flex-direction: column; gap: 10px; }
 .goal-eyebrow{ font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; color: var(--signal); }
 .goal-title{ font-family: var(--font-display); font-size: 18px; font-weight: 500; }
 .goal-input{ background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; color: var(--paper); font-family: var(--font-body); font-size: 13.5px; padding: 12px 14px; resize: vertical; min-height: 90px; margin-top: 4px; }
@@ -257,8 +196,8 @@ input:focus, textarea:focus{ outline: none; border-color: var(--signal-soft); }
 input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
 .time-input{ width: 130px; font-family: var(--font-mono); }
 .text-input{ flex: 1; min-width: 200px; }
-.solid-btn{ background: var(--signal); border: 1px solid var(--signal); color: var(--ink); font-family: var(--font-body); font-size: 13.5px; font-weight: 600; padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: opacity .15s ease, box-shadow .15s ease; box-shadow: 0 0 18px rgba(255,93,58,.28); }
-.solid-btn:hover{ opacity: 0.9; box-shadow: 0 0 28px rgba(255,93,58,.46); }
+.solid-btn{ background: var(--signal); border: 1px solid var(--signal); color: var(--ink); font-family: var(--font-body); font-size: 13.5px; font-weight: 600; padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: opacity .15s ease; }
+.solid-btn:hover{ opacity: 0.85; }
 
 .timeline{ display: flex; flex-direction: column; border-left: 1px solid var(--line); padding-left: 28px; margin-left: 6px; }
 .timeline-row{ position: relative; padding: 16px 0; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; gap: 20px; }
@@ -270,7 +209,7 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
 .timeline-remove:hover{ color: var(--signal); }
 .empty-note{ font-family: var(--font-mono); font-size: 12.5px; color: var(--paper-dim); padding: 24px 0; }
 
-.panel{ background: rgba(21,21,28,.92); border: 1px solid rgba(255,93,58,.14); border-radius: 14px; padding: 28px 32px; margin-bottom: 24px; box-shadow: 0 0 34px rgba(255,93,58,.08), inset 0 0 20px rgba(255,255,255,.025); }
+.panel{ background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 28px 32px; margin-bottom: 24px; }
 .panel-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; flex-wrap: wrap; gap: 6px; }
 .panel-note{ font-size: 12px; color: var(--paper-dim); }
 .check-list{ display: flex; flex-direction: column; gap: 2px; list-style: none; }
@@ -289,7 +228,7 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
 .check-meta{ font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); margin-left: 8px; }
 
 .routine-categories{ display: flex; flex-direction: column; gap: 24px; }
-.routine-category{ border: 1px solid rgba(255,93,58,.14); border-radius: 10px; padding: 20px 22px; background: rgba(28,28,37,.9); box-shadow: 0 0 22px rgba(255,93,58,.06); }
+.routine-category{ border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; background: var(--panel-2); }
 .routine-category-head{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .routine-category-title{ font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; color: var(--signal); }
 .routine-add-form{ display: flex; gap: 10px; margin-top: 14px; }
@@ -298,24 +237,60 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
 
 .hidden{ display: none !important; }
 
-.javelin-panel{ overflow:hidden; }
-.gym-summary{ display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
-.gym-focus-card{ display:flex; justify-content:space-between; align-items:center; gap:16px; border:1px solid rgba(255,93,58,.16); border-radius:10px; padding:16px 18px; background:rgba(28,28,37,.9); box-shadow: 0 0 24px rgba(255,93,58,.08); }
-.gym-kicker{ display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; color:var(--signal); text-transform:uppercase; margin-bottom:4px; }
-.gym-focus-card h3{ font-family:var(--font-display); font-size:22px; font-weight:500; margin:0; }
-.gym-progress-pill{ flex-shrink:0; font-family:var(--font-mono); font-size:12px; color:var(--paper); border:1px solid var(--line); border-radius:999px; padding:7px 10px; }
-.gym-progress-track{ height:6px; border-radius:3px; background:var(--line); overflow:hidden; }
-.gym-progress-fill{ height:100%; background:var(--signal); border-radius:3px; transition:width .25s ease; }
-.javelin-item{ align-items:flex-start; padding:14px 4px; }
-.javelin-exercise-head{ display:flex; justify-content:space-between; gap:14px; align-items:baseline; }
-.javelin-exercise-head span{ flex-shrink:0; color:var(--signal); font-family:var(--font-mono); font-size:12px; }
-.javelin-note{ display:block; color:var(--paper-dim); font-size:12.5px; line-height:1.45; margin-top:4px; }
-.gym-accent-blue .gym-kicker, .gym-accent-blue .gym-progress-pill{ color:#70aee0; }
-.gym-accent-red .gym-kicker, .gym-accent-red .gym-progress-pill{ color:#ff725f; }
-.gym-accent-green .gym-kicker, .gym-accent-green .gym-progress-pill{ color:#76d08e; }
-.gym-accent-orange .gym-kicker, .gym-accent-orange .gym-progress-pill{ color:#e99a5c; }
-.gym-accent-purple .gym-kicker, .gym-accent-purple .gym-progress-pill{ color:#b893e4; }
-.gym-accent-gray .gym-kicker, .gym-accent-gray .gym-progress-pill{ color:var(--paper-dim); }
+/* ============================================================
+   SUMMER PLAN SECTION
+   ============================================================ */
+.summer-view-tabs { display: flex; gap: 6px; margin-bottom: 28px; }
+.summer-view-btn { background: transparent; border: 1px solid var(--line); color: var(--paper-dim); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; padding: 8px 18px; border-radius: 8px; cursor: pointer; transition: all .15s ease; text-transform: uppercase; }
+.summer-view-btn:hover { color: var(--paper); border-color: var(--signal-soft); }
+.summer-view-btn.active { background: var(--signal); border-color: var(--signal); color: var(--ink); font-weight: 700; }
+
+.summer-panel { display: none; }
+.summer-panel.active { display: block; animation: fadeUp .3s ease; }
+
+/* Daily schedule timeline */
+.summer-daily-grid { display: flex; flex-direction: column; gap: 0; border-left: 2px solid var(--signal-soft); padding-left: 24px; margin-left: 8px; }
+.summer-time-block { position: relative; padding: 14px 0 14px 0; border-bottom: 1px solid var(--line); }
+.summer-time-block:last-child { border-bottom: none; }
+.summer-time-block::before { content: ''; position: absolute; left: -29px; top: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 3px var(--ink), 0 0 0 5px var(--signal-soft); }
+.summer-time-label { font-family: var(--font-mono); font-size: 12px; color: var(--signal); margin-bottom: 4px; }
+.summer-time-title { font-size: 15px; font-weight: 600; color: var(--paper); }
+.summer-time-note { font-size: 12.5px; color: var(--paper-dim); margin-top: 3px; line-height: 1.5; }
+.summer-tag { display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; margin-top: 5px; text-transform: uppercase; }
+.tag-exercise { background: rgba(255,93,58,.2); color: var(--signal); border: 1px solid var(--signal-soft); }
+.tag-study { background: rgba(100,160,255,.15); color: #64a0ff; border: 1px solid rgba(100,160,255,.3); }
+.tag-break { background: rgba(100,200,100,.12); color: #6dc86d; border: 1px solid rgba(100,200,100,.25); }
+.tag-meal { background: rgba(255,200,80,.12); color: #f0c040; border: 1px solid rgba(255,200,80,.25); }
+.tag-morning { background: rgba(200,150,255,.15); color: #c896ff; border: 1px solid rgba(200,150,255,.25); }
+
+/* Weekly view */
+.summer-week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.summer-week-col { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 10px; min-height: 200px; }
+.summer-week-col.weekend { opacity: 0.65; }
+.summer-week-day-label { font-family: var(--font-mono); font-size: 11px; color: var(--signal); text-align: center; margin-bottom: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+.summer-week-item { font-size: 10.5px; padding: 4px 6px; border-radius: 5px; margin-bottom: 4px; line-height: 1.35; }
+.swi-exercise { background: rgba(255,93,58,.15); border-left: 2px solid var(--signal); color: var(--paper); }
+.swi-study { background: rgba(100,160,255,.12); border-left: 2px solid #64a0ff; color: var(--paper); }
+.swi-sat { background: rgba(255,200,80,.12); border-left: 2px solid #f0c040; color: var(--paper); }
+.swi-lang { background: rgba(200,150,255,.12); border-left: 2px solid #c896ff; color: var(--paper); }
+.swi-rest { background: var(--panel-2); border-left: 2px solid var(--line); color: var(--paper-dim); }
+
+/* Monthly / 9-week view */
+.summer-9week { display: flex; flex-direction: column; gap: 14px; }
+.summer-week-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px; }
+.summer-week-card.current-week { border-color: var(--signal); box-shadow: 0 0 0 1px var(--signal-soft); }
+.swc-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.swc-title { font-family: var(--font-display); font-size: 16px; font-weight: 500; }
+.swc-badge { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; }
+.badge-active { background: var(--signal-dim); color: var(--signal); border: 1px solid var(--signal-soft); }
+.badge-upcoming { background: var(--panel-2); color: var(--paper-dim); border: 1px solid var(--line); }
+.badge-bc-core { background: rgba(100,160,255,.15); color: #64a0ff; border: 1px solid rgba(100,160,255,.3); }
+.badge-final { background: rgba(200,150,255,.15); color: #c896ff; border: 1px solid rgba(200,150,255,.3); }
+.swc-subjects { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.swc-subject-tag { font-family: var(--font-mono); font-size: 10px; padding: 3px 10px; border-radius: 5px; }
+.swc-body { font-size: 13px; color: var(--paper-dim); line-height: 1.6; }
+.swc-daily-goal { margin-top: 10px; font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); border-top: 1px solid var(--line); padding-top: 10px; }
+.swc-daily-goal span { color: var(--paper); }
 
 @media (max-width: 880px){
   .app{ flex-direction: column; }
@@ -324,8 +299,7 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
   .date-readout, .sidebar-bottom{ display: none; }
   .nav{ flex-direction: row; margin-top: 0; overflow-x: auto; }
   .nav-item{ white-space: nowrap; }
-  .content-shell{ display:block; padding: 28px 20px 60px; max-width: 100%; }
-  .command-rail{ position:static; margin-top:26px; }
+  .main{ padding: 28px 20px 60px; max-width: 100%; }
   .view-title{ font-size: 32px; }
   .goals-block{ grid-template-columns: 1fr; }
   .progress-dial-row{ flex-direction: column; align-items: flex-start; }
@@ -334,14 +308,14 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
 </head>
 <body>
 
-<div id="weatherBackdrop" class="weather-backdrop"></div>
-
+<!-- OBJECTIVE ENTER POPUP OVERLAY -->
 <div id="topPopup" class="top-popup">
   <div id="topPopupTitle" class="top-popup-title">Weekly Objective</div>
   <div id="topPopupBody" class="top-popup-body">Focused & Intentional</div>
 </div>
 
 <div class="app">
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-top">
       <div class="brand">
@@ -370,15 +344,14 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
         <span class="nav-index">03</span>
         <span class="nav-label">Tasks &amp; Routines</span>
       </button>
-      <button class="nav-item" data-tab="gym">
+      <button class="nav-item" data-tab="summer">
         <span class="nav-index">04</span>
-        <span class="nav-label">Gym Routine</span>
+        <span class="nav-label">☀ Summer Plan</span>
       </button>
     </nav>
 
     <div class="sidebar-bottom">
-      <div id="weatherWidget" class="weather-widget" role="button" tabindex="0" aria-label="Expand weather forecast">
-        <button id="weatherClose" class="weather-close" type="button" aria-label="Close weather">x</button>
+      <div class="weather-widget">
         <span class="weather-loc">Winchester, MA</span>
         <div class="weather-tabs">
           <button class="weather-tab-btn active" data-range="daily">Daily</button>
@@ -399,14 +372,16 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
     </div>
   </aside>
 
-  <div class="content-shell">
+  <!-- MAIN -->
   <main class="main">
+    <!-- ===================== DASHBOARD ===================== -->
     <section id="tab-dashboard" class="view active">
       <header class="view-head">
         <span class="view-eyebrow">01 / Overview</span>
         <h1 class="view-title">Today's Briefing</h1>
       </header>
 
+      <!-- Quote -->
       <div class="quote-block">
         <p id="quoteText" class="quote-text">Loading...</p>
         <div class="quote-foot">
@@ -423,6 +398,7 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
         </div>
       </div>
 
+      <!-- Progress -->
       <div class="progress-block">
         <div class="progress-head">
           <h2 class="block-title">Routine Completion</h2>
@@ -443,6 +419,7 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
         </div>
       </div>
 
+      <!-- Goals -->
       <div class="goals-block">
         <div class="goal-card">
           <span class="goal-eyebrow">This week</span>
@@ -457,6 +434,7 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
       </div>
     </section>
 
+    <!-- ===================== SCHEDULE (UPDATED: MONTHLY CALENDAR) ===================== -->
     <section id="tab-schedule" class="view">
       <header class="view-head">
         <span class="view-eyebrow">02 / Schedule</span>
@@ -482,12 +460,14 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
       </div>
     </section>
 
+    <!-- ===================== TASKS & ROUTINES ===================== -->
     <section id="tab-tasks" class="view">
       <header class="view-head">
         <span class="view-eyebrow">03 / Tasks &amp; Routines</span>
         <h1 class="view-title">Execution Log</h1>
       </header>
 
+      <!-- Todo -->
       <div class="panel">
         <div class="panel-head">
           <h2 class="block-title">To-do — Today</h2>
@@ -504,6 +484,7 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
         <ul id="todoHistory" class="check-list history hidden"></ul>
       </div>
 
+      <!-- Routines -->
       <div class="panel">
         <div class="panel-head">
           <h2 class="block-title">Routines</h2>
@@ -512,70 +493,256 @@ input::placeholder, textarea::placeholder{ color: var(--paper-dim); }
         <div class="routine-categories" id="routineCategories"></div>
       </div>
     </section>
-
-    <section id="tab-gym" class="view">
+    <!-- ===================== SUMMER PLAN ===================== -->
+    <section id="tab-summer" class="view">
       <header class="view-head">
-        <span class="view-eyebrow">04 / Javelin</span>
-        <h1 class="view-title">Gym Routine</h1>
+        <span class="view-eyebrow">04 / Summer 2025</span>
+        <h1 class="view-title">Summer Study OS</h1>
       </header>
 
-      <div class="panel javelin-panel">
-        <div class="panel-head">
-          <h2 class="block-title">Today's Javelin Program</h2>
-          <span id="gymDayNote" class="panel-note">Day-specific training plan</span>
+      <!-- View toggle tabs -->
+      <div class="summer-view-tabs">
+        <button class="summer-view-btn active" data-summer-view="daily">Daily</button>
+        <button class="summer-view-btn" data-summer-view="weekly">Weekly</button>
+        <button class="summer-view-btn" data-summer-view="monthly">9-Week Plan</button>
+      </div>
+
+      <!-- DAILY VIEW -->
+      <div id="summer-daily" class="summer-panel active">
+        <div class="panel" style="margin-bottom:28px;">
+          <div class="panel-head"><h2 class="block-title">Daily Schedule</h2><span class="panel-note">Mon – Fri</span></div>
+          <div class="summer-daily-grid">
+            <div class="summer-time-block">
+              <div class="summer-time-label">7:30 AM</div>
+              <div class="summer-time-title">기상</div>
+              <div class="summer-time-note">일어나자마자 물 한 잔, 커튼 열기</div>
+              <span class="summer-tag tag-morning">Morning</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">7:30 – 8:00 AM</div>
+              <div class="summer-time-title">아침식사 + 방 정리 + 준비</div>
+              <div class="summer-time-note">오트밀 or 바나나 + 견과류 / 방 정리 후 공부 준비 완료 상태로</div>
+              <span class="summer-tag tag-meal">Meal</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">8:00 – 9:00 AM</div>
+              <div class="summer-time-title">아침 운동</div>
+              <div class="summer-time-note">웨이트 또는 유산소 — 루틴 탭 운동 스케줄 참고</div>
+              <span class="summer-tag tag-exercise">Exercise</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">9:00 – 9:20 AM</div>
+              <div class="summer-time-title">샤워 + 정리</div>
+              <div class="summer-time-note">샤워 후 피부 관리 루틴 (아침: BHA 5% → 아크네 → 로션 → 선크림)</div>
+              <span class="summer-tag tag-morning">Prep</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">9:20 – 10:00 AM</div>
+              <div class="summer-time-title">AP Lang — New York Times 칼럼 읽기</div>
+              <div class="summer-time-note">SOAPS 분석 (Speaker · Occasion · Audience · Purpose · Subject) + Rhetorical Choices 3개 이상 마킹 + 에세이 소스 노트 기록</div>
+              <span class="summer-tag tag-study">AP Lang</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">10:00 – 10:10 AM</div>
+              <div class="summer-time-title">10분 휴식</div>
+              <div class="summer-time-note">핸드폰 내려놓기, 스트레칭 or 물 마시기</div>
+              <span class="summer-tag tag-break">Break</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">10:10 AM – 12:00 PM</div>
+              <div class="summer-time-title">AP Calc BC — 인강 + 문제 풀이</div>
+              <div class="summer-time-note">개념 인강 45분 → RPM 문제 풀이 + 오답 노트 1시간 15분 / 7~8주차는 2.5시간으로 증량</div>
+              <span class="summer-tag tag-study">AP Calc BC</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">12:00 – 12:30 PM</div>
+              <div class="summer-time-title">점심식사</div>
+              <div class="summer-time-note">단백질 위주 식사, 억지로 빠르게 먹지 않기</div>
+              <span class="summer-tag tag-meal">Meal</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">12:30 – 3:00 PM</div>
+              <div class="summer-time-title">SAT 준비 — 인강 + 문제 풀이</div>
+              <div class="summer-time-note">Reading / Writing / Math 섹션 순환 — 인강 위주로 개념 잡기</div>
+              <span class="summer-tag tag-study">SAT</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">3:00 PM</div>
+              <div class="summer-time-title">공부 종료 ✓</div>
+              <div class="summer-time-note">자유 시간 — 단, 자기 전에 AP Lang 에세이 1편 작성</div>
+              <span class="summer-tag tag-break">Free</span>
+            </div>
+            <div class="summer-time-block">
+              <div class="summer-time-label">취침 전</div>
+              <div class="summer-time-title">AP Lang 에세이 작성</div>
+              <div class="summer-time-note">Q1 RA 서론 or Q3 주장 에세이 1편 — 오늘 칼럼 소재 활용 권장</div>
+              <span class="summer-tag tag-study">AP Lang</span>
+            </div>
+          </div>
         </div>
-        <div id="gymDayTabs" class="workout-tabs"></div>
-        <div id="gymSummary" class="gym-summary"></div>
-        <ul id="gymList" class="check-list javelin-list"></ul>
+
+        <!-- AP Lang Strategy card -->
+        <div class="panel" style="margin-bottom:28px;">
+          <div class="panel-head"><h2 class="block-title">AP Lang 전략</h2></div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:16px 18px;">
+              <div style="font-family:var(--font-mono);font-size:11px;color:#c896ff;letter-spacing:0.15em;margin-bottom:6px;">SOAPS 분석</div>
+              <div style="font-size:13.5px;color:var(--paper);line-height:1.6;">칼럼마다 Speaker · Occasion · Audience · Purpose · Subject를 한 문장씩 정리. Rhetorical Analysis 서론 직결 훈련.</div>
+            </div>
+            <div style="background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:16px 18px;">
+              <div style="font-family:var(--font-mono);font-size:11px;color:#64a0ff;letter-spacing:0.15em;margin-bottom:6px;">Rhetorical Choices</div>
+              <div style="font-size:13.5px;color:var(--paper);line-height:1.6;">작가가 왜 그 단어(Diction)·비유·통계를 썼는지 3가지 이상 찾기. Q2 RA 에세이 본론 바디 연습.</div>
+            </div>
+            <div style="background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:16px 18px;">
+              <div style="font-family:var(--font-mono);font-size:11px;color:#f0c040;letter-spacing:0.15em;margin-bottom:6px;">에세이 소스 노트</div>
+              <div style="font-size:13.5px;color:var(--paper);line-height:1.6;">칼럼에서 나온 사회 이슈·역사적 사건·철학적 관점을 따로 노트. Q3 주장 에세이 근거(Evidence)로 활용.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEKLY VIEW -->
+      <div id="summer-weekly" class="summer-panel">
+        <div class="panel">
+          <div class="panel-head"><h2 class="block-title">주간 루틴 (Weekly Snapshot)</h2><span class="panel-note">색상 = 과목</span></div>
+          <div class="summer-week-grid">
+            <div class="summer-week-col">
+              <div class="summer-week-day-label">Mon</div>
+              <div class="summer-week-item swi-exercise">🏋️ 운동<br>8–9AM</div>
+              <div class="summer-week-item swi-lang">📰 NYT 칼럼<br>9:20–10AM</div>
+              <div class="summer-week-item swi-study">📐 Calc BC<br>10:10AM–12PM</div>
+              <div class="summer-week-item swi-sat">📝 SAT<br>12:30–3PM</div>
+              <div class="summer-week-item swi-lang">✍️ 에세이<br>취침 전</div>
+            </div>
+            <div class="summer-week-col">
+              <div class="summer-week-day-label">Tue</div>
+              <div class="summer-week-item swi-exercise">🏋️ 운동<br>8–9AM</div>
+              <div class="summer-week-item swi-lang">📰 NYT 칼럼<br>9:20–10AM</div>
+              <div class="summer-week-item swi-study">📐 Calc BC<br>10:10AM–12PM</div>
+              <div class="summer-week-item swi-sat">📝 SAT<br>12:30–3PM</div>
+              <div class="summer-week-item swi-lang">✍️ 에세이<br>취침 전</div>
+            </div>
+            <div class="summer-week-col">
+              <div class="summer-week-day-label">Wed</div>
+              <div class="summer-week-item swi-exercise">🏋️ 운동<br>8–9AM</div>
+              <div class="summer-week-item swi-lang">📰 NYT 칼럼<br>9:20–10AM</div>
+              <div class="summer-week-item swi-study">📐 Calc BC<br>10:10AM–12PM</div>
+              <div class="summer-week-item swi-sat">📝 SAT<br>12:30–3PM</div>
+              <div class="summer-week-item swi-lang">✍️ 에세이<br>취침 전</div>
+            </div>
+            <div class="summer-week-col">
+              <div class="summer-week-day-label">Thu</div>
+              <div class="summer-week-item swi-exercise">🏋️ 운동<br>8–9AM</div>
+              <div class="summer-week-item swi-lang">📰 NYT 칼럼<br>9:20–10AM</div>
+              <div class="summer-week-item swi-study">📐 Calc BC<br>10:10AM–12PM</div>
+              <div class="summer-week-item swi-sat">📝 SAT<br>12:30–3PM</div>
+              <div class="summer-week-item swi-lang">✍️ 에세이<br>취침 전</div>
+            </div>
+            <div class="summer-week-col">
+              <div class="summer-week-day-label">Fri</div>
+              <div class="summer-week-item swi-exercise">🏋️ 운동<br>8–9AM</div>
+              <div class="summer-week-item swi-lang">📰 NYT 칼럼<br>9:20–10AM</div>
+              <div class="summer-week-item swi-study">📐 Calc BC<br>10:10AM–12PM</div>
+              <div class="summer-week-item swi-sat">📝 SAT<br>12:30–3PM</div>
+              <div class="summer-week-item swi-lang">✍️ 에세이<br>취침 전</div>
+            </div>
+            <div class="summer-week-col weekend">
+              <div class="summer-week-day-label">Sat</div>
+              <div class="summer-week-item swi-exercise">🏃 유산소<br>아침</div>
+              <div class="summer-week-item swi-rest">자유 / 복습</div>
+              <div class="summer-week-item swi-lang">✍️ 에세이<br>취침 전</div>
+            </div>
+            <div class="summer-week-col weekend">
+              <div class="summer-week-day-label">Sun</div>
+              <div class="summer-week-item swi-rest">🧘 휴식</div>
+              <div class="summer-week-item swi-study">주간 오답 복습</div>
+              <div class="summer-week-item swi-lang">✍️ 에세이<br>취침 전</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9-WEEK MONTHLY VIEW -->
+      <div id="summer-monthly" class="summer-panel">
+        <div class="panel">
+          <div class="panel-head"><h2 class="block-title">9주 완성 플랜</h2><span class="panel-note">AP Calc BC + AP Lang + SAT</span></div>
+          <div class="summer-9week">
+
+            <div class="summer-week-card">
+              <div class="swc-header">
+                <span class="swc-title">Week 1–2</span>
+                <span class="swc-badge badge-upcoming">Limits & Diff 기초</span>
+              </div>
+              <div class="swc-subjects">
+                <span class="swc-subject-tag" style="background:rgba(100,160,255,.15);color:#64a0ff;border:1px solid rgba(100,160,255,.3);">Calc: Unit 1–3</span>
+                <span class="swc-subject-tag" style="background:rgba(200,150,255,.15);color:#c896ff;border:1px solid rgba(200,150,255,.3);">AP Lang: SOAPS 습관화</span>
+                <span class="swc-subject-tag" style="background:rgba(255,200,80,.15);color:#f0c040;border:1px solid rgba(255,200,80,.25);">SAT: 인강 개념</span>
+              </div>
+              <div class="swc-body">Limits, Continuity, Basic Differentiation (Power, Chain, Product, Quotient Rule). Khan Academy Unit 1–3 + RPM 미적분 - 수열의 극한 / 미분법 기초. AP Lang은 매일 NYT 칼럼 SOAPS 분석 + 에세이 소스 노트 시작.</div>
+              <div class="swc-daily-goal">Daily goal: <span>개념 영상 3개 + 유형 4개 풀이 · 칼럼 SOAPS 1개 · SAT 인강</span></div>
+            </div>
+
+            <div class="summer-week-card">
+              <div class="swc-header">
+                <span class="swc-title">Week 3–4</span>
+                <span class="swc-badge badge-upcoming">Applications & Integration 입문</span>
+              </div>
+              <div class="swc-subjects">
+                <span class="swc-subject-tag" style="background:rgba(100,160,255,.15);color:#64a0ff;border:1px solid rgba(100,160,255,.3);">Calc: Unit 4–6</span>
+                <span class="swc-subject-tag" style="background:rgba(200,150,255,.15);color:#c896ff;border:1px solid rgba(200,150,255,.3);">AP Lang: RA 서론 쓰기</span>
+                <span class="swc-subject-tag" style="background:rgba(255,200,80,.15);color:#f0c040;border:1px solid rgba(255,200,80,.25);">SAT: 섹션별 훈련</span>
+              </div>
+              <div class="swc-body">Contextual/Analytical Applications of Differentiation, Basic Integration. RPM 도함수의 활용 / 여러 가지 미분법. AP Lang: Rhetorical Choices 3개 이상 찾기 + Q1 RA 에세이 서론(Intro) 매일 1편.</div>
+              <div class="swc-daily-goal">Daily goal: <span>개념 영상 4개 + 활용 문제 · RA 서론 1편 · SAT 섹션 1개</span></div>
+            </div>
+
+            <div class="summer-week-card">
+              <div class="swc-header">
+                <span class="swc-title">Week 5–6</span>
+                <span class="swc-badge badge-upcoming">Diff. Equations & 적분 활용</span>
+              </div>
+              <div class="swc-subjects">
+                <span class="swc-subject-tag" style="background:rgba(100,160,255,.15);color:#64a0ff;border:1px solid rgba(100,160,255,.3);">Calc: Unit 7–8</span>
+                <span class="swc-subject-tag" style="background:rgba(200,150,255,.15);color:#c896ff;border:1px solid rgba(200,150,255,.3);">AP Lang: Q3 에세이 연습</span>
+                <span class="swc-subject-tag" style="background:rgba(255,200,80,.15);color:#f0c040;border:1px solid rgba(255,200,80,.25);">SAT: 모의고사 1회</span>
+              </div>
+              <div class="swc-body">Differential Equations (slope fields, Euler's method), Area/Volume of Integration. RPM 여러 가지 적분법 / 정적분의 활용. AB 파트 마무리 오답 체크. AP Lang: Q3 주장 에세이 매일 1편 (소스 노트 근거 활용).</div>
+              <div class="swc-daily-goal">Daily goal: <span>AB 마무리 오답 · Q3 에세이 1편 · SAT 모의고사 or 섹션</span></div>
+            </div>
+
+            <div class="summer-week-card">
+              <div class="swc-header">
+                <span class="swc-title">Week 7–8</span>
+                <span class="swc-badge badge-bc-core">★ BC 핵심 단원</span>
+              </div>
+              <div class="swc-subjects">
+                <span class="swc-subject-tag" style="background:rgba(100,160,255,.15);color:#64a0ff;border:1px solid rgba(100,160,255,.3);">Calc: Unit 9–10</span>
+                <span class="swc-subject-tag" style="background:rgba(200,150,255,.15);color:#c896ff;border:1px solid rgba(200,150,255,.3);">AP Lang: 전체 에세이 루틴 유지</span>
+                <span class="swc-subject-tag" style="background:rgba(255,200,80,.15);color:#f0c040;border:1px solid rgba(255,200,80,.25);">SAT: 모의고사 2–3회</span>
+              </div>
+              <div class="swc-body">Parametric, Polar, Vector Functions + Infinite Sequences and Series (테일러급수, 수렴/발산 판정). RPM 수열의 급수. 극좌표는 YouTube/구글링 보충. ⚠️ Calc 공부 시간 <strong style="color:var(--signal);">2.5시간으로 증량</strong> 권장.</div>
+              <div class="swc-daily-goal">Daily goal: <span>BC 핵심 2.5h · 에세이 1편 · SAT 모의고사 오답</span></div>
+            </div>
+
+            <div class="summer-week-card">
+              <div class="swc-header">
+                <span class="swc-title">Week 9</span>
+                <span class="swc-badge badge-final">Final Review</span>
+              </div>
+              <div class="swc-subjects">
+                <span class="swc-subject-tag" style="background:rgba(255,93,58,.2);color:var(--signal);border:1px solid var(--signal-soft);">Calc: 코스 챌린지 + FRQ</span>
+                <span class="swc-subject-tag" style="background:rgba(200,150,255,.15);color:#c896ff;border:1px solid rgba(200,150,255,.3);">AP Lang: 실전 에세이</span>
+                <span class="swc-subject-tag" style="background:rgba(255,200,80,.15);color:#f0c040;border:1px solid rgba(255,200,80,.25);">SAT: 최종 모의고사</span>
+              </div>
+              <div class="swc-body">Khan Academy 코스 챌린지 완주 + FRQ 맛보기 (AP Classroom 기출). 오답 노트 총복습. AP Lang 실전 에세이 Q1·Q3 각 1편씩. SAT 최종 모의고사 1회 풀타임.</div>
+              <div class="swc-daily-goal">Daily goal: <span>오답 노트 전체 리뷰 · FRQ 연습 · 실전 감각 총정리</span></div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </section>
   </main>
-
-  <aside class="command-rail" aria-label="Daily command center">
-    <div class="rail-card focus-keep">
-      <div class="rail-head">
-        <span class="rail-title">Command Center</span>
-        <span id="railCompletion" class="rail-value">0%</span>
-      </div>
-      <button id="focusModeToggle" class="mode-toggle" type="button">
-        <span>Focus mode</span>
-        <span class="mode-pill" aria-hidden="true"></span>
-      </button>
-    </div>
-
-    <div class="rail-card">
-      <div class="rail-head">
-        <span class="rail-title">Today Schedule</span>
-        <span id="railEventCount" class="panel-note">0</span>
-      </div>
-      <div id="railScheduleList" class="rail-list"></div>
-    </div>
-
-    <div class="rail-card">
-      <div class="rail-head">
-        <span class="rail-title">Next Actions</span>
-        <span id="railTaskCount" class="panel-note">0</span>
-      </div>
-      <div id="railTaskList" class="rail-list"></div>
-    </div>
-
-    <div class="rail-card">
-      <div class="rail-head">
-        <span class="rail-title">Javelin Focus</span>
-        <span id="railGymDay" class="panel-note">Today</span>
-      </div>
-      <div id="railGymFocus" class="rail-list"></div>
-    </div>
-
-    <div class="rail-card compact">
-      <div class="rail-head">
-        <span class="rail-title">Quick Notes</span>
-        <span id="railNoteStatus" class="panel-note">saved</span>
-      </div>
-      <textarea id="quickNotes" class="rail-note" placeholder="Training cues, reminders, things to fix tomorrow..."></textarea>
-    </div>
-  </aside>
-  </div>
 </div>
 
 <script>
@@ -591,89 +758,12 @@ const DEFAULT_QUOTES = [
   { text: "Small disciplines repeated with consistency every day lead to great achievements.", author: "John C. Maxwell" }
 ];
 
-const JAVELIN_PROGRAM = {
-  1: {
-    focus: 'Lower Power + Olympic Lifts', badge: 'Leg Power', accent: 'gold',
-    items: [
-      { id:'jav-mon-1', name:'Hang Power Cleans', sets:'5x3', note:'Maximum triple extension. Focus on a violent hip snap, not an arm pull.' },
-      { id:'jav-mon-2', name:'Box Squats (Heavy)', sets:'4x5', note:'Dead stop on the box. Builds explosive starting strength for the block.' },
-      { id:'jav-mon-3', name:'Heavy Barbell Reverse Lunges', sets:'4x6/leg', note:'Primary block-leg builder. Control the descent.' },
-      { id:'jav-mon-4', name:'Snatch-Grip High Pulls', sets:'4x4', note:'Heavier than clean. Explosive pull to chin. Trains rapid force.' },
-      { id:'jav-mon-5', name:'Nordic Hamstring Curls', sets:'3x5', note:'Hamstring protection for explosive approach speed. Non-negotiable injury prevention.' },
-      { id:'jav-mon-6', name:'Max Split Squat Jumps', sets:'3xmax', note:'Bodyweight finisher to failure.' }
-    ]
-  },
-  2: {
-    focus: 'Upper Strength + Arm Integrity', badge: 'Modified', accent: 'blue',
-    items: [
-      { id:'jav-tue-1', name:'Overhead Press (Barbell)', sets:'5x5', note:'Trains the overhead delivery position. More javelin-specific than flat bench.' },
-      { id:'jav-tue-2', name:'Weighted Pull-Ups', sets:'4x6', note:'Wide grip. Builds the back needed to decelerate your arm.' },
-      { id:'jav-tue-3', name:'Heavy DB Pullovers', sets:'4x8', note:'Strength-through-length for lats and pec. Let it stretch fully at the bottom.' },
-      { id:'jav-tue-4', name:'Cable Face Pulls', sets:'4x15', note:'Rear delt and external rotator cuff. Keeps the shoulder healthy under throwing load.' },
-      { id:'jav-tue-5', name:'Serratus Punches (Cable/Band)', sets:'3x12', note:'Scapular stability so force goes into the javelin instead of the shoulder joint.' },
-      { id:'jav-tue-6', name:'Drop-Catch Bicep Curls', sets:'3x8', note:'Eccentric arm control for braking force at the elbow.' }
-    ]
-  },
-  3: {
-    focus: 'Technical Throwing + Sprint Work', badge: 'Highest Priority', accent: 'red',
-    items: [
-      { id:'jav-wed-1', name:'Sprint Acceleration (30m Runs)', sets:'6x30m', note:'Run at 95 percent. Rest 3 minutes. Approach speed feeds release velocity.' },
-      { id:'jav-wed-2', name:'Standing Throws (No Run-Up)', sets:'10 throws', note:'Focus on hip-first sequencing and full external rotation layback.' },
-      { id:'jav-wed-3', name:'3-Step Approach Throws', sets:'10 throws', note:'Build cross-step rhythm, block, and throw at controlled speed.' },
-      { id:'jav-wed-4', name:'Full Approach Throws', sets:'8 throws', note:'70-80 percent intensity. Smooth speed transfer, not max effort.' },
-      { id:'jav-wed-5', name:'Block Leg Isometric', sets:'3x90s', note:'Split squat hold per leg, back knee one inch off the ground.' }
-    ]
-  },
-  4: {
-    focus: 'Speed-Strength + Unilateral Power', badge: 'Power Day', accent: 'green',
-    items: [
-      { id:'jav-thu-1', name:'Dumbbell Split Squat Jumps', sets:'4x5/leg', note:'25-30 lb per hand. Mimics drive-off in the delivery stride.' },
-      { id:'jav-thu-2', name:'Bulgarian Split Squats (Loaded)', sets:'4x8/leg', note:'DB or barbell. Keep center of mass stacked.' },
-      { id:'jav-thu-3', name:'Split Squat Depth Drops', sets:'4x5/leg', note:'Land in block stance with zero wobble. Reactive strength for the plant.' },
-      { id:'jav-thu-4', name:'Single-Leg RDL (Dumbbell)', sets:'3x10/leg', note:'Posterior chain balance and lower-back protection.' },
-      { id:'jav-thu-5', name:'Broad Jumps (Max Distance)', sets:'4x5', note:'Horizontal power output for approach explosiveness.' },
-      { id:'jav-thu-6', name:'Heavy Dead Hangs', sets:'3x60s', note:'Spinal decompression plus grip and forearm strength.' }
-    ]
-  },
-  5: {
-    focus: 'Rotational Power + Arm Care', badge: 'Arm Health', accent: 'orange',
-    items: [
-      { id:'jav-fri-1', name:'Rotational Med Ball Chest Pass', sets:'4x8/side', note:'Rotate hips first, then throw. Trains hip-to-shoulder sequencing.' },
-      { id:'jav-fri-2', name:'Split Squat Rotational Med Ball Slams', sets:'4x8/side', note:'Block stance. Violent slam while the legs stay planted.' },
-      { id:'jav-fri-3', name:'Med Ball Wall Dribbles', sets:'3x30s', note:'Fast wrist and forearm conditioning.' },
-      { id:'jav-fri-4', name:'2kg Plyo Ball ER Pulses', sets:'4x15', note:'Light, fast external rotation conditioning.' },
-      { id:'jav-fri-5', name:"Band Pull-Aparts + Y-T-W's", sets:'3x15 each', note:'Mid-trap and lower-trap work to prevent shoulder impingement.' },
-      { id:'jav-fri-6', name:'Ulnar Nerve Flossing + Forearm Rolling', sets:'2-3 min', note:'Follow with lacrosse ball on forearm, pec minor, and teres major.' }
-    ]
-  },
-  6: {
-    focus: 'Active Recovery + Mobility', badge: 'Recovery', accent: 'purple',
-    items: [
-      { id:'jav-sat-1', name:'Dead Hangs (Passive)', sets:'3x60s', note:'Spinal decompression after the lifting week.' },
-      { id:'jav-sat-2', name:"Thrower's Stretch", sets:'3x45s/side', note:'Thoracic spine mobility for deeper layback.' },
-      { id:'jav-sat-3', name:'90/90 Hip Stretch + Pigeon Pose', sets:'2x60s/side', note:'Hip mobility for a wider, stronger block stride.' },
-      { id:'jav-sat-4', name:'Pliability Massage', sets:'6 min total', note:'Lacrosse ball on forearm, pec minor, and teres major.' },
-      { id:'jav-sat-5', name:'Light Jog / Walk', sets:'20 min', note:'Conversational pace active recovery.' }
-    ]
-  },
-  0: {
-    focus: 'Full Rest', badge: 'Off', accent: 'gray',
-    items: [
-      { id:'jav-sun-1', name:'Complete Rest', sets:'All day', note:'Sleep 8-9 hours, hit protein, hydrate, and let adaptation happen.' },
-      { id:'jav-sun-2', name:'Mental Review', sets:'15 min', note:'Watch elite throws and mentally rehearse approach, block, and release.' }
-    ]
-  }
-};
 const DEFAULT_STATE = {
   quotes: DEFAULT_QUOTES,
   weeklyGoal: '',
   monthlyGoal: '',
   schedule: [], // 구조 변경: { id, date (YYYY-MM-DD), time, text }
   todos: [],
-  quickNotes: '',
-  focusMode: false,
-  gymRoutine: [], // 운동 루틴 저장 배열 추가
-  gymCompletions: {},
   routines: {
     "운동": [
       { id: 'ex-mon', text: '월: 상체 웨이트', done: false, dayIndex: 1 },
@@ -694,7 +784,7 @@ const DEFAULT_STATE = {
       { id: 'di-din', text: '저녁: 단백질 위주', done: false },
       { id: 'di-wat', text: '물 2L 이상 마시기', done: false }
     ],
-    "작은 습관들": [
+    "기본 습관": [
       { id: 'ha-rea', text: '책 읽기', done: false },
       { id: 'ha-str', text: '자기 전에 스트레칭', done: false },
       { id: 'ha-scr', text: '스크린타임 줄이기', done: false }
@@ -710,10 +800,7 @@ function loadState(){
     const parsed = JSON.parse(raw);
     return Object.assign(structuredClone(DEFAULT_STATE), parsed, {
       quotes: parsed.quotes && parsed.quotes.length ? parsed.quotes : DEFAULT_QUOTES,
-      routines: parsed.routines || structuredClone(DEFAULT_STATE.routines),
-      gymCompletions: parsed.gymCompletions || {},
-      quickNotes: parsed.quickNotes || '',
-      focusMode: !!parsed.focusMode
+      routines: parsed.routines || structuredClone(DEFAULT_STATE.routines)
     });
   }catch(e){
     return structuredClone(DEFAULT_STATE);
@@ -747,121 +834,27 @@ function formatTime12(time24){
   const hour12 = h % 12 === 0 ? 12 : h % 12;
   return `${hour12}:${String(m).padStart(2,'0')} ${period}`;
 }
-function todayKey(){
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-/* ============================================================
-   RIGHT RAIL COMMAND CENTER
-   ============================================================ */
-const railCompletion = document.getElementById('railCompletion');
-const railEventCount = document.getElementById('railEventCount');
-const railScheduleList = document.getElementById('railScheduleList');
-const railTaskCount = document.getElementById('railTaskCount');
-const railTaskList = document.getElementById('railTaskList');
-const railGymDay = document.getElementById('railGymDay');
-const railGymFocus = document.getElementById('railGymFocus');
-const quickNotes = document.getElementById('quickNotes');
-const railNoteStatus = document.getElementById('railNoteStatus');
-const focusModeToggle = document.getElementById('focusModeToggle');
-
-function renderRailRows(el, rows, emptyText){
-  el.innerHTML = '';
-  if(rows.length === 0){
-    el.innerHTML = `<p class="rail-empty">${emptyText}</p>`;
-    return;
-  }
-  rows.forEach(row => {
-    const item = document.createElement('div');
-    item.className = 'rail-row';
-    item.innerHTML = `<strong>${escapeHtml(row.title)}</strong><span>${escapeHtml(row.meta)}</span>`;
-    el.appendChild(item);
-  });
-}
-
-function renderCommandRail(){
-  const dateKey = todayKey();
-  const todayEvents = state.schedule
-    .filter(s => s.date === dateKey)
-    .sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'))
-    .slice(0, 4)
-    .map(e => ({ title: e.text, meta: e.time ? formatTime12(e.time) : 'Anytime' }));
-
-  const activeTodos = state.todos
-    .filter(t => !t.done)
-    .slice(0, 4)
-    .map((t, i) => ({ title: t.text, meta: `#${i + 1}` }));
-
-  const todayDay = new Date().getDay();
-  const gymProgram = JAVELIN_PROGRAM[todayDay];
-  const gymRows = gymProgram.items.slice(0, 3).map(item => ({ title: item.name, meta: item.sets }));
-
-  const percentText = document.getElementById('dialPercent')?.textContent || '0%';
-  railCompletion.textContent = percentText;
-  railEventCount.textContent = `${todayEvents.length}`;
-  railTaskCount.textContent = `${activeTodos.length}`;
-  railGymDay.textContent = JAVELIN_DAY_NAMES[todayDay].slice(0, 3);
-
-  renderRailRows(railScheduleList, todayEvents, 'No events scheduled today.');
-  renderRailRows(railTaskList, activeTodos, 'No active tasks. Clean slate.');
-  renderRailRows(railGymFocus, gymRows, gymProgram.focus);
-
-  quickNotes.value = state.quickNotes || '';
-  document.body.classList.toggle('focus-mode', !!state.focusMode);
-  focusModeToggle.classList.toggle('active', !!state.focusMode);
-}
-
-let notesTimer;
-quickNotes.addEventListener('input', () => {
-  state.quickNotes = quickNotes.value;
-  railNoteStatus.textContent = 'saving...';
-  clearTimeout(notesTimer);
-  notesTimer = setTimeout(() => {
-    saveState();
-    railNoteStatus.textContent = 'saved';
-  }, 350);
-});
-
-focusModeToggle.addEventListener('click', () => {
-  state.focusMode = !state.focusMode;
-  saveState();
-  renderCommandRail();
-});
 
 /* ============================================================
    NAVIGATION
    ============================================================ */
 const navItems = document.querySelectorAll('.nav-item');
 const views = document.querySelectorAll('.view');
-const mainEl = document.querySelector('.main');
-let activeTab = 'dashboard';
 
 navItems.forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
-    if(tab === activeTab) return;
-    const currentView = document.getElementById(`tab-${activeTab}`);
-    const nextView = document.getElementById(`tab-${tab}`);
-
     navItems.forEach(b => b.classList.remove('active'));
+    views.forEach(v => v.classList.remove('active'));
     btn.classList.add('active');
-
-    if(currentView){
-      mainEl.classList.add('transitioning');
-      currentView.classList.remove('active');
-      currentView.classList.add('leaving');
-      setTimeout(() => {
-        currentView.classList.remove('leaving');
-        mainEl.classList.remove('transitioning');
-      }, 260);
-    }
-
-    nextView.classList.add('active');
-    activeTab = tab;
+    document.getElementById(`tab-${tab}`).classList.add('active');
     if(tab === 'schedule') { renderCalendar(); }
-    if(tab === 'gym') { renderGymRoutine(); } // 04번 탭 클릭 시 화면 갱신 추가
-    renderCommandRail();
+    if(tab === 'summer') {
+      document.querySelectorAll('.summer-view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.summer-panel').forEach(p => p.classList.remove('active'));
+      document.querySelector('[data-summer-view="daily"]').classList.add('active');
+      document.getElementById('summer-daily').classList.add('active');
+    }
   });
 });
 
@@ -869,7 +862,8 @@ navItems.forEach(btn => {
    DATE & CALENDAR STATE
    ============================================================ */
 let calendarDate = new Date(); // 달력 조작 기준일
-let selectedDateStr = new Date().toISOString().split('T')[0]; // 선택된 날짜 (YYYY-MM-DD)
+function toLocalDateStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+let selectedDateStr = toLocalDateStr(new Date()); // 선택된 날짜 (YYYY-MM-DD)
 let activeWorkoutDayTab = new Date().getDay(); // 운동관리 탭 활성화 기준 (0=일, 1=월...)
 
 function renderDate(){
@@ -960,7 +954,7 @@ function renderCalendar() {
   }
   
   // 당월 일수 채우기
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(new Date());
   for(let d = 1; d <= totalDays; d++) {
     const cell = document.createElement('div');
     const currentStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -997,11 +991,12 @@ function renderCalendar() {
   }
   
   renderDayTimeline();
-  renderCommandRail();
 }
 
 function renderDayTimeline() {
-  const displayDate = new Date(selectedDateStr);
+  // Parse YYYY-MM-DD locally to avoid UTC-offset date shift bug
+  const [yr, mo, dy] = selectedDateStr.split('-').map(Number);
+  const displayDate = new Date(yr, mo - 1, dy);
   selectedDayTitle.textContent = `Schedule: ${displayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}`;
   timelineList.innerHTML = '';
   
@@ -1024,7 +1019,6 @@ function renderDayTimeline() {
       state.schedule = state.schedule.filter(s => s.id !== item.id);
       saveState();
       renderCalendar();
-      renderCommandRail();
     });
     timelineList.appendChild(row);
   });
@@ -1041,7 +1035,6 @@ scheduleForm.addEventListener('submit', (e) => {
   document.getElementById('scheduleText').value = '';
   document.getElementById('scheduleTime').value = '';
   renderCalendar();
-  renderCommandRail();
 });
 
 /* ============================================================
@@ -1097,7 +1090,6 @@ function renderProgress(){
 
   document.getElementById('sidebarPercent').textContent = `${overallPct}%`;
   document.getElementById('sidebarBar').style.width = `${overallPct}%`;
-  renderCommandRail();
 }
 
 /* ============================================================
@@ -1220,7 +1212,6 @@ function renderRoutines(){
 function switchWorkoutTab(dayIndex) {
   activeWorkoutDayTab = dayIndex;
   renderRoutines();
-  renderCommandRail();
 }
 
 function toggleRoutine(category, id){
@@ -1230,7 +1221,6 @@ function toggleRoutine(category, id){
   saveState();
   renderRoutines();
   renderProgress();
-  renderCommandRail();
 }
 
 function removeRoutine(category, id){
@@ -1238,7 +1228,6 @@ function removeRoutine(category, id){
   saveState();
   renderRoutines();
   renderProgress();
-  renderCommandRail();
 }
 
 /* ============================================================
@@ -1304,7 +1293,6 @@ function renderTodos(){
   else active.forEach(todo => todoList.appendChild(buildTodoItem(todo)));
   if(done.length === 0) todoHistory.innerHTML = `<p class="empty-note">No completed tasks yet.</p>`;
   else done.sort((a,b) => (b.completedAt || 0) - (a.completedAt || 0)).forEach(todo => todoHistory.appendChild(buildTodoItem(todo, true)));
-  renderCommandRail();
 }
 
 function buildTodoItem(todo, isHistory = false){
@@ -1319,11 +1307,11 @@ function buildTodoItem(todo, isHistory = false){
   li.querySelector('.check-box').addEventListener('click', () => {
     todo.done = !todo.done;
     todo.completedAt = todo.done ? Date.now() : null;
-    saveState(); renderTodos(); renderProgress();
+    saveState(); renderTodos();
   });
   li.querySelector('.check-remove').addEventListener('click', () => {
     state.todos = state.todos.filter(t => t.id !== todo.id);
-    saveState(); renderTodos(); renderProgress();
+    saveState(); renderTodos();
   });
   return li;
 }
@@ -1334,7 +1322,7 @@ todoForm.addEventListener('submit', (e) => {
   const text = input.value.trim();
   if(!text) return;
   state.todos.push({ id: uid(), text, done: false, completedAt: null });
-  saveState(); input.value = ''; renderTodos(); renderCommandRail();
+  saveState(); input.value = ''; renderTodos();
 });
 
 historyToggle.addEventListener('click', () => {
@@ -1343,94 +1331,22 @@ historyToggle.addEventListener('click', () => {
   historyToggle.textContent = willShow ? 'Hide completed history ▴' : 'View completed history ▾';
 });
 
-
 /* ============================================================
-   04 GYM ROUTINE COMPONENT
+   SUMMER PLAN VIEW TABS
    ============================================================ */
-const gymDayTabs = document.getElementById('gymDayTabs');
-const gymDayNote = document.getElementById('gymDayNote');
-const gymSummary = document.getElementById('gymSummary');
-const gymList = document.getElementById('gymList');
-const JAVELIN_DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-let activeGymDay = new Date().getDay();
+const summerViewBtns = document.querySelectorAll('.summer-view-btn');
+const summerPanels = document.querySelectorAll('.summer-panel');
 
-function localDateKey(date = new Date()){
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function gymCompletionKey(dayIndex = activeGymDay){
-  return `${localDateKey()}:${dayIndex}`;
-}
-
-function getGymDoneSet(dayIndex = activeGymDay){
-  if(!state.gymCompletions) state.gymCompletions = {};
-  return new Set(state.gymCompletions[gymCompletionKey(dayIndex)] || []);
-}
-
-function saveGymDoneSet(doneSet, dayIndex = activeGymDay){
-  if(!state.gymCompletions) state.gymCompletions = {};
-  state.gymCompletions[gymCompletionKey(dayIndex)] = Array.from(doneSet);
-  saveState();
-}
-
-function renderGymRoutine() {
-  const todayIndex = new Date().getDay();
-  const program = JAVELIN_PROGRAM[activeGymDay];
-  const doneSet = getGymDoneSet(activeGymDay);
-  const doneCount = program.items.filter(item => doneSet.has(item.id)).length;
-  const pct = program.items.length ? Math.round((doneCount / program.items.length) * 100) : 0;
-
-  gymDayTabs.innerHTML = JAVELIN_DAY_NAMES.map((day, idx) => `
-    <button class="workout-tab-btn ${idx === activeGymDay ? 'active' : ''} ${idx === todayIndex ? 'today-highlight' : ''}" type="button" data-day="${idx}">${day.slice(0,3)}</button>
-  `).join('');
-
-  gymDayTabs.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeGymDay = Number(btn.dataset.day);
-      renderGymRoutine();
-    });
+summerViewBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.summerView;
+    summerViewBtns.forEach(b => b.classList.remove('active'));
+    summerPanels.forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`summer-${target}`).classList.add('active');
   });
+});
 
-  gymDayNote.textContent = `${JAVELIN_DAY_NAMES[activeGymDay]} - ${program.focus}`;
-  gymSummary.innerHTML = `
-    <div class="gym-focus-card gym-accent-${program.accent}">
-      <div>
-        <span class="gym-kicker">${program.badge}</span>
-        <h3>${program.focus}</h3>
-      </div>
-      <div class="gym-progress-pill">${doneCount}/${program.items.length} done</div>
-    </div>
-    <div class="gym-progress-track"><div class="gym-progress-fill" style="width:${pct}%"></div></div>
-  `;
-
-  gymList.innerHTML = '';
-  program.items.forEach((item, index) => {
-    const done = doneSet.has(item.id);
-    const li = document.createElement('li');
-    li.className = `check-item javelin-item ${done ? 'done' : ''}`;
-    li.innerHTML = `
-      <button class="check-box ${done ? 'checked' : ''}" type="button"></button>
-      <span class="check-label">
-        <span class="javelin-exercise-head"><strong>${index + 1}. ${escapeHtml(item.name)}</strong><span>${escapeHtml(item.sets)}</span></span>
-        <span class="javelin-note">${escapeHtml(item.note)}</span>
-      </span>
-    `;
-
-    li.querySelector('.check-box').addEventListener('click', () => {
-      const updated = getGymDoneSet(activeGymDay);
-      if(updated.has(item.id)) updated.delete(item.id);
-      else updated.add(item.id);
-      saveGymDoneSet(updated, activeGymDay);
-      renderGymRoutine();
-    });
-
-    gymList.appendChild(li);
-  });
-  renderCommandRail();
-}
 /* ============================================================
    INITIALIZATION
    ============================================================ */
@@ -1438,8 +1354,6 @@ renderCalendar();
 renderTodos();
 renderRoutines();
 renderProgress();
-renderGymRoutine(); // 첫 페이지 로드 시 운동 데이터 갱신 기능 활성화
-
 
 /* ============================================================
    WEATHER WIDGET (Winchester, MA)
@@ -1451,33 +1365,6 @@ const weatherTabs = document.querySelectorAll('.weather-tab-btn');
 let weatherData = null;
 let activeWeatherRange = 'daily';
 
-const weatherWidget = document.getElementById('weatherWidget');
-const weatherBackdrop = document.getElementById('weatherBackdrop');
-const weatherClose = document.getElementById('weatherClose');
-
-function openWeatherPanel(){
-  weatherWidget.classList.add('expanded');
-  document.body.classList.add('weather-open');
-  weatherWidget.setAttribute('aria-expanded', 'true');
-}
-
-function closeWeatherPanel(){
-  weatherWidget.classList.remove('expanded');
-  document.body.classList.remove('weather-open');
-  weatherWidget.setAttribute('aria-expanded', 'false');
-}
-
-weatherWidget.addEventListener('click', (e) => {
-  if(e.target.closest('.weather-close') || e.target.closest('.weather-tab-btn')) return;
-  openWeatherPanel();
-});
-weatherWidget.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openWeatherPanel(); }
-  if(e.key === 'Escape') closeWeatherPanel();
-});
-weatherClose.addEventListener('click', (e) => { e.stopPropagation(); closeWeatherPanel(); });
-weatherBackdrop.addEventListener('click', closeWeatherPanel);
-document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeWeatherPanel(); });
 const WMO_DESCRIPTIONS = {
   0: 'Clear sky', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast',
   45: 'Fog', 48: 'Freezing fog',
@@ -1550,7 +1437,7 @@ function renderWeatherMonthly(){
     const avgMin = Math.round(mins.reduce((a,b)=>a+b,0) / mins.length);
     const startDate = new Date(slice[0] + 'T00:00:00');
     const endDate = new Date(slice[slice.length-1] + 'T00:00:00');
-    const label = `${startDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})} - ${endDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+    const label = `${startDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${endDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
     rows.push(`
       <div class="weather-row">
         <span class="weather-row-label">${label}</span>
@@ -1562,14 +1449,11 @@ function renderWeatherMonthly(){
 }
 
 weatherTabs.forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  btn.addEventListener('click', () => {
     weatherTabs.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeWeatherRange = btn.dataset.range;
     renderWeather();
-    openWeatherPanel();
   });
 });
 
@@ -1578,4 +1462,3 @@ setInterval(fetchWeather, 30 * 60 * 1000); // refresh every 30 min
 </script>
 </body>
 </html>
-
